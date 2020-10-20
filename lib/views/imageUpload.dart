@@ -2,16 +2,16 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class ImageUpload extends StatefulWidget {
+  ImageUpload({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ImageUploadState createState() => _ImageUploadState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ImageUploadState extends State<ImageUpload> {
   File _image;
   final picker = ImagePicker();
 

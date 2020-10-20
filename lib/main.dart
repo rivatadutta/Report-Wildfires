@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fire_project/views/mapRender.dart';
 import 'package:fire_project/views/imageUpload.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: MapRender(),
-      home: MyHomePage(title: 'Upload Image'),
+      home: ImageUpload(title: 'Upload Image'),
     );
   }
 }
