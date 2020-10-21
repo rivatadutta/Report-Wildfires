@@ -4,9 +4,12 @@ import 'dart:typed_data';
 
 import 'package:exif_flutter/exif_flutter.dart';
 import 'package:exif_flutter/tags.dart';
+import 'package:fire_project/views/mapRender.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../globalVariables.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 
 Future<void> writeToFile(ByteData data, String path) {
@@ -86,17 +89,51 @@ class _ImageUploadState extends State<ImageUpload> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Upload Image'),
+        backgroundColor: Color(Global.backgroundColor),
       ),
-      body: Center(
-        child: _image == null
-            ? Text('No image selected.')
-            : Image.file(_image),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: _image == null
+                    ? Text('No image selected.')
+                    : Image.file(_image),
+              ),
+              Container(
+                alignment: Alignment.bottomLeft,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) =>
+                            MapRender(),
+                        transitionsBuilder: (context, animation1, animation2,
+                                child) =>
+                            FadeTransition(opacity: animation1, child: child),
+                        transitionDuration: Duration(milliseconds: 300),
+                      ),
+                    );
+                  },
+                  backgroundColor: Colors.white70,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  child: Icon(Icons.map_outlined),
+                  heroTag: "mapRender",
+                ),
+              )
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: getMetadata,
         tooltip: 'Pick Image',
         child: Icon(Icons.add_a_photo),
+        heroTag: "imageSelector",
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

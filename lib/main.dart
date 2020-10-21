@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:fire_project/views/enterName.dart';
 import 'package:fire_project/views/mapRender.dart';
 import 'package:fire_project/views/imageUpload.dart';
 import 'package:flutter/material.dart';
+
+import 'globalVariables.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,13 +18,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: Color(Global.backgroundColor),
         primarySwatch: Colors.blue,
-
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
       // home: MapRender(),
-      home: ImageUpload(title: 'Upload Image'),
+      home: EnterName(),
     );
   }
 }

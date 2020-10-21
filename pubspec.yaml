@@ -28,6 +28,7 @@ dependencies:
   path_provider:
   exif_flutter:
     path: exif_flutter/
+  google_maps_flutter: ^1.0.0 #API for Maps services
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
