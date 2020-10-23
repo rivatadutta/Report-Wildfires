@@ -102,8 +102,8 @@ class _ImageUploadState extends State<ImageUpload> {
                     : Image.file(_image),
               ),
               Container(
-                alignment: Alignment.bottomLeft,
-                child: FloatingActionButton(
+                alignment: Alignment.centerRight,
+                child: RaisedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -117,12 +117,15 @@ class _ImageUploadState extends State<ImageUpload> {
                       ),
                     );
                   },
-                  backgroundColor: Colors.white70,
+                  color: Colors.lightBlue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  child: Icon(Icons.map_outlined),
-                  heroTag: "mapRender",
+                  label: Text(
+                    "View Map",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                  ),
+                  icon: Icon(Icons.map_outlined),
                 ),
               )
             ],
@@ -133,8 +136,8 @@ class _ImageUploadState extends State<ImageUpload> {
         onPressed: getMetadata,
         tooltip: 'Pick Image',
         child: Icon(Icons.add_a_photo),
-        heroTag: "imageSelector",
       ), // This trailing comma makes auto-formatting nicer for build methods.
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

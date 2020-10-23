@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'imageUpload.dart';
+
 class MapRender extends StatefulWidget {
   @override
   _MapRenderState createState() => _MapRenderState();
@@ -32,10 +34,22 @@ class _MapRenderState extends State<MapRender> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => ImageUpload(),
+              transitionsBuilder: (context, animation1, animation2, child) =>
+                  FadeTransition(opacity: animation1, child: child),
+              transitionDuration: Duration(milliseconds: 300),
+            ),
+          );
+        },
+        backgroundColor: Colors.deepOrange,
+        label: Text('Upload Image'),
+        icon: Icon(Icons.add_a_photo_sharp),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
