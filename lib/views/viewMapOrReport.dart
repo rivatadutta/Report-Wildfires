@@ -1,6 +1,7 @@
-import 'package:fire_project/views/imageUpload.dart';
+import 'package:fire_project/views/camera.dart';
 import 'package:fire_project/views/mapRender.dart';
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import '../globalVariables.dart';
 
 class VeiwMapOrReport extends StatefulWidget {
@@ -68,7 +69,7 @@ class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                            ImageUpload(),
+                            CameraApp(),
                         transitionsBuilder: (context, animation1, animation2,
                                 child) =>
                             FadeTransition(opacity: animation1, child: child),

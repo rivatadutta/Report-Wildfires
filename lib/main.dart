@@ -1,13 +1,21 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:fire_project/views/enterName.dart';
 import 'package:fire_project/views/mapRender.dart';
-import 'package:fire_project/views/imageUpload.dart';
+import 'package:fire_project/views/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 
 import 'globalVariables.dart';
 
-void main() {
+Future<void> main() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    logError(e.code, e.description);
+  }
   runApp(MyApp());
 }
 

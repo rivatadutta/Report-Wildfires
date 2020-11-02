@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:camera/camera.dart';
 
-import 'imageUpload.dart';
+import 'camera.dart';
 
 class MapRender extends StatefulWidget {
   @override
@@ -38,7 +39,7 @@ class _MapRenderState extends State<MapRender> {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => ImageUpload(),
+              pageBuilder: (context, animation1, animation2) => CameraApp(),
               transitionsBuilder: (context, animation1, animation2, child) =>
                   FadeTransition(opacity: animation1, child: child),
               transitionDuration: Duration(milliseconds: 300),
