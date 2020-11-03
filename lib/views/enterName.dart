@@ -1,6 +1,20 @@
 import 'package:fire_project/views/enterLocation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../firebaseFunctions.dart';
 import '../globalVariables.dart';
+
+Future<void> saveNamePreference(String userName) async {
+  SharedPreferences userNamePrefs = await SharedPreferences.getInstance();
+  userNamePrefs.setString("userName", userName);
+}
+
+// to load shared string
+Future<String> getNamePreference() async {
+  SharedPreferences userNamePrefs = await SharedPreferences.getInstance();
+  String userName = userNamePrefs.getString("userName");
+  return userName;
+}
 
 class EnterName extends StatefulWidget {
   @override
@@ -19,6 +33,7 @@ class _EnterNameState extends State<EnterName> {
     setState(() {
       if (formKey.currentState.validate()) {
         String userName = userNameController.text;
+        // saveNamePreference(userName).then((_) {
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -27,6 +42,8 @@ class _EnterNameState extends State<EnterName> {
                 FadeTransition(opacity: animation1, child: child),
             transitionDuration: Duration(milliseconds: 300),
           ),
+          // );
+          // }
         );
       }
     });
@@ -66,6 +83,7 @@ class _EnterNameState extends State<EnterName> {
                     ),
                     onChanged: (text) {
                       userName = text;
+                      FirebaseFunctions.currentUserData["userName"] = text;
                     },
                   ),
                 ),
