@@ -3,13 +3,28 @@ import 'package:fire_project/views/mapRender.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import '../globalVariables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'enterName.dart';
 
-class VeiwMapOrReport extends StatefulWidget {
+class ViewMapOrReport extends StatefulWidget {
   @override
-  _VeiwMapOrReportState createState() => _VeiwMapOrReportState();
+  _ViewMapOrReportState createState() => _ViewMapOrReportState();
 }
 
-class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
+class _ViewMapOrReportState extends State<ViewMapOrReport> {
+  String _name = "";
+
+  void initState() {
+    getNamePreference().then(_updateName);
+    super.initState();
+  }
+
+  void _updateName(String name) {
+    setState(() {
+      this._name = name;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +34,7 @@ class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
             children: [
               Container(
                 padding: EdgeInsets.fromLTRB(30, 120, 30, 0),
-                child: Text('Welcome,',
+                child: Text('Welcome,', // $_name' ?? '',
                     style:
                         TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               ),

@@ -1,5 +1,6 @@
 import 'package:fire_project/views/viewMapOrReport.dart';
 import 'package:flutter/material.dart';
+import '../firebaseFunctions.dart';
 import '../globalVariables.dart';
 
 class EnterLocation extends StatefulWidget {
@@ -22,7 +23,7 @@ class _EnterLocationState extends State<EnterLocation> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => VeiwMapOrReport(),
+            pageBuilder: (context, animation1, animation2) => ViewMapOrReport(),
             transitionsBuilder: (context, animation1, animation2, child) =>
                 FadeTransition(opacity: animation1, child: child),
             transitionDuration: Duration(milliseconds: 300),
@@ -66,6 +67,7 @@ class _EnterLocationState extends State<EnterLocation> {
                     ),
                     onChanged: (text) {
                       userAddress = text;
+                      FirebaseFunctions.currentUserData["userAddress"] = text;
                     },
                   ),
                 ),
