@@ -3,9 +3,17 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:path_provider/path_provider.dart';
 
+class CameraApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CameraExampleHome(),
+    );
+  }
+}
 
 List<CameraDescription> cameras = [];
 
@@ -77,7 +85,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Camera example'),
+        title: Text("Camera"),
       ),
       body: Column(
         children: <Widget>[
@@ -217,8 +225,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           icon: const Icon(Icons.camera_alt),
           color: Colors.blue,
           onPressed: controller != null &&
-              controller.value.isInitialized &&
-              !controller.value.isRecordingVideo
+                  controller.value.isInitialized &&
+                  !controller.value.isRecordingVideo
               ? onTakePictureButtonPressed
               : null,
         ),
@@ -256,12 +264,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void getHeading() async {
-  final CompassEvent tmp = await FlutterCompass.events.first;
-  setState(() {
-  _lastRead = tmp;
-  _lastReadAt = DateTime.now();
-  });
-}
+    final CompassEvent tmp = await FlutterCompass.events.first;
+    setState(() {
+      _lastRead = tmp;
+      _lastReadAt = DateTime.now();
+    });
+  }
 
   void showInSnackBar(String message) {
     // ignore: deprecated_member_use
@@ -335,14 +343,5 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   void _showCameraException(CameraException e) {
     logError(e.code, e.description);
     showInSnackBar('Error: ${e.code}\n${e.description}');
-  }
-}
-
-class CameraApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CameraExampleHome(),
-    );
   }
 }

@@ -1,8 +1,6 @@
 import 'package:fire_project/views/camera.dart';
 import 'package:fire_project/views/mapRender.dart';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import '../globalVariables.dart';
 
 class VeiwMapOrReport extends StatefulWidget {
   @override
@@ -13,6 +11,9 @@ class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Home"),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

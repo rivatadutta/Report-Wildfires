@@ -1,5 +1,6 @@
 import 'package:fire_project/views/viewMapOrReport.dart';
 import 'package:flutter/material.dart';
+
 import '../globalVariables.dart';
 
 class EnterLocation extends StatefulWidget {
@@ -39,11 +40,14 @@ class _EnterLocationState extends State<EnterLocation> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
-                child: Text('And your location?',
-                    style:
-                        TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
+                  child: Text('And your location?',
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                ),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(30, 30, 30, 0),

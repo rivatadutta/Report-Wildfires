@@ -1,6 +1,15 @@
 import 'package:fire_project/views/enterLocation.dart';
 import 'package:flutter/material.dart';
+
 import '../globalVariables.dart';
+
+Future<void> _signInAnonymously() async {
+  try {
+    await FirebaseAuth.instance.signInAnonymously();
+  } catch (e) {
+    print(e); // TODO: show dialog with error
+  }
+}
 
 class EnterName extends StatefulWidget {
   @override

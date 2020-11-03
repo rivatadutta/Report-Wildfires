@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'dart:async';
 
-import 'package:fire_project/views/enterName.dart';
-import 'package:fire_project/views/mapRender.dart';
+import 'package:camera/camera.dart';
+import 'package:fire_project/landingPage.dart';
 import 'package:fire_project/views/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 
 import 'globalVariables.dart';
 
@@ -32,7 +30,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: MapRender(),
-      home: EnterName(),
+      home: LandingPage(),
     );
   }
 }
