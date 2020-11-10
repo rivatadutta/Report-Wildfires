@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:fire_project/globalData/globalVariables.dart';
 
 class CameraApp extends StatelessWidget {
   @override
@@ -79,13 +80,15 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  int _currentIndex = 2;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Camera"),
+        elevation: 0.0,
+        backgroundColor: Color(Global.backgroundColor),
       ),
       body: Column(
         children: <Widget>[

@@ -1,7 +1,8 @@
-import 'package:fire_project/views/enterLocation.dart';
+import 'package:fire_project/loginPages/enterLocation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../globalVariables.dart';
+import 'file:///C:/Users/Rivata/Desktop/Fire-Reporting/lib/globalData/firebaseFunctions.dart';
+import'package:fire_project/globalData/globalVariables.dart';
 
 Future<void> _signInAnonymously() async {
   try {
@@ -17,6 +18,7 @@ class EnterName extends StatefulWidget {
 }
 
 class _EnterNameState extends State<EnterName> {
+
   final formKey = GlobalKey<FormState>();
 
   String userName = Global.userName ?? "";
@@ -27,7 +29,8 @@ class _EnterNameState extends State<EnterName> {
   void _signInName() {
     setState(() {
       if (formKey.currentState.validate()) {
-        String userName = userNameController.text;
+        userName = userNameController.text;;
+        _signInAnonymously();
         Navigator.push(
           context,
           PageRouteBuilder(

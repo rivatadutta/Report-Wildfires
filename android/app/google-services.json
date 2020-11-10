@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "87772960203",
-    "firebase_url": "https://fire-reporting-58e66.firebaseio.com",
-    "project_id": "fire-reporting-58e66",
-    "storage_bucket": "fire-reporting-58e66.appspot.com"
+    "project_number": "597921618562",
+    "firebase_url": "https://hopeful-lexicon-293108.firebaseio.com",
+    "project_id": "hopeful-lexicon-293108",
+    "storage_bucket": "hopeful-lexicon-293108.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:87772960203:android:b6fb5e08fa01f23590124e",
+        "mobilesdk_app_id": "1:597921618562:android:37861621e676ee84da329b",
         "android_client_info": {
-          "package_name": "report.fires.app"
+          "package_name": "com.fire_reporting"
         }
       },
       "oauth_client": [
         {
-          "client_id": "87772960203-hbtan5qa99u2odvdeusvn7nmumfjknkj.apps.googleusercontent.com",
+          "client_id": "597921618562-dfp6sdofildmd2dejanig3eppu886eub.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAvAykUNKE9WDXESfOJz0iSY6WgS0nvyLE"
+          "current_key": "AIzaSyBzsLzddeqoTfIvDloyEoYkZgf-zMmF7sc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "87772960203-hbtan5qa99u2odvdeusvn7nmumfjknkj.apps.googleusercontent.com",
+              "client_id": "597921618562-dfp6sdofildmd2dejanig3eppu886eub.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

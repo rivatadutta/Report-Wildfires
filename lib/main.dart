@@ -5,7 +5,7 @@ import 'package:fire_project/landingPage.dart';
 import 'package:fire_project/views/camera.dart';
 import 'package:flutter/material.dart';
 
-import 'globalVariables.dart';
+import 'globalData/globalVariables.dart';
 
 Future<void> main() async {
   try {

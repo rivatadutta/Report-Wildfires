@@ -1,18 +1,30 @@
 import 'package:fire_project/views/camera.dart';
 import 'package:fire_project/views/mapRender.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../globalData/globalVariables.dart';
+import 'package:flutter/widgets.dart';
 
-class VeiwMapOrReport extends StatefulWidget {
-  @override
-  _VeiwMapOrReportState createState() => _VeiwMapOrReportState();
+final FirebaseAuth auth = FirebaseAuth.instance;
+void inputData() async {
+  final FirebaseUser user = await auth.currentUser();
+  final uid = user.uid;
+  // here you write the codes to input the data into firestore
 }
 
-class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
+class ViewMapOrReport extends StatefulWidget {
+  @override
+  _ViewMapOrReportState createState() => _ViewMapOrReportState();
+}
+
+class _ViewMapOrReportState extends State<ViewMapOrReport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home"),
+        backgroundColor: Color(Global.backgroundColor),
+        elevation: 0.0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -20,8 +32,8 @@ class _VeiwMapOrReportState extends State<VeiwMapOrReport> {
             children: [
               Container(
                 padding: EdgeInsets.fromLTRB(30, 120, 30, 0),
-                child: Text('Welcome,',
-                    style:
+                child: Text('Welcome ${Global.userName}',
+              style:
                         TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               ),
               Container(

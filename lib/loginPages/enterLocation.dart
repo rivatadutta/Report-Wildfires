@@ -1,7 +1,7 @@
+import 'package:fire_project/navbar/bottom_navbar_page.dart';
 import 'package:fire_project/views/viewMapOrReport.dart';
 import 'package:flutter/material.dart';
-
-import '../globalVariables.dart';
+import'package:fire_project/globalData/globalVariables.dart';
 
 class EnterLocation extends StatefulWidget {
   @override
@@ -23,7 +23,7 @@ class _EnterLocationState extends State<EnterLocation> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => VeiwMapOrReport(),
+            pageBuilder: (context, animation1, animation2) => TabsPage(),
             transitionsBuilder: (context, animation1, animation2, child) =>
                 FadeTransition(opacity: animation1, child: child),
             transitionDuration: Duration(milliseconds: 300),
