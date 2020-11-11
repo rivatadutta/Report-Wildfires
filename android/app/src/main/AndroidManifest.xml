@@ -13,7 +13,7 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="fire_project"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDSlymlDeaTbNKTI7ht9O5KZpkBkUVKl_s"/>
         <activity
