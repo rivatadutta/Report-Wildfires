@@ -27,8 +27,10 @@
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
+.firebaserc
 .pub/
 /build/
+/functions/
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -41,3 +43,7 @@ app.*.map.json
 
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+!/android/app/src/main/AndroidMaifest.xml
+!android/app/build.gradle
+!android/app/google-services.json
+
