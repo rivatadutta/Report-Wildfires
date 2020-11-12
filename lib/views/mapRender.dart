@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:camera/camera.dart';
+import 'package:fire_project/globalData/globalVariables.dart';
 
 import 'camera.dart';
 
@@ -24,9 +25,15 @@ class _MapRenderState extends State<MapRender> {
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
 
+  int _currentIndex = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Map"),
+        elevation: 0.0,
+        backgroundColor: Color(Global.backgroundColor),
+      ),
       body: GoogleMap(
         mapType: MapType.hybrid,
         initialCameraPosition: _kGooglePlex,

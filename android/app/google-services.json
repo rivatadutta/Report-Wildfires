@@ -1,34 +1,42 @@
 {
   "project_info": {
-    "project_number": "597921618562",
-    "firebase_url": "https://hopeful-lexicon-293108.firebaseio.com",
-    "project_id": "hopeful-lexicon-293108",
-    "storage_bucket": "hopeful-lexicon-293108.appspot.com"
+    "project_number": "703740612192",
+    "firebase_url": "https://fire-reporting-88f03.firebaseio.com",
+    "project_id": "fire-reporting-88f03",
+    "storage_bucket": "fire-reporting-88f03.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:597921618562:android:37861621e676ee84da329b",
+        "mobilesdk_app_id": "1:703740612192:android:98f9eed9a7fa4ceea9fd05",
         "android_client_info": {
-          "package_name": "com.fire_reporting"
+          "package_name": "com.fire_project"
         }
       },
       "oauth_client": [
         {
-          "client_id": "597921618562-dfp6sdofildmd2dejanig3eppu886eub.apps.googleusercontent.com",
+          "client_id": "703740612192-4li91cav0l3jafigrkr9s57glhsp0jat.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fire_project",
+            "certificate_hash": "bd07379c0ecc671793ca46e4a6f0798496e8412d"
+          }
+        },
+        {
+          "client_id": "703740612192-ac4ed65dq1fj4r2ajfmlf0kkmbqb8da9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBzsLzddeqoTfIvDloyEoYkZgf-zMmF7sc"
+          "current_key": "AIzaSyBIzb_dLgIxzWKqieUe0-5Ak-gTBhklNJI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "597921618562-dfp6sdofildmd2dejanig3eppu886eub.apps.googleusercontent.com",
+              "client_id": "703740612192-ac4ed65dq1fj4r2ajfmlf0kkmbqb8da9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
