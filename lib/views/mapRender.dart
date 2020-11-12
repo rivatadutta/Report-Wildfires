@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 import 'camera.dart';
 
@@ -12,6 +14,10 @@ class MapRender extends StatefulWidget {
 }
 
 class _MapRenderState extends State<MapRender> {
+  String searchAddr;
+  GoogleMapController mapController;
+
+
   Completer<GoogleMapController> _controller = Completer();
 
   static final CameraPosition _kGooglePlex = CameraPosition(
@@ -34,12 +40,46 @@ class _MapRenderState extends State<MapRender> {
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
-      body: GoogleMap(
+      body:  Stack(
+        children: <Widget>[
+          GoogleMap(
         mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
+        onMapCreated: onMapCreated,
+       // options: GoogleMapOptions(
+          initialCameraPosition: _kGooglePlex,
+    ),
+        //initialCameraPosition: _kGooglePlex,
+        //onMapCreated: (GoogleMapController controller) {
+        //  _controller.complete(controller);
+       // },
+    //  ),
+    Positioned(
+          top: 30.0,
+          right: 15.0,
+          left: 15.0,
+          child: Container(
+          height: 50.0,
+          width: double.infinity,
+          decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0), color: Colors.white),
+          child: TextField(
+          decoration: InputDecoration(
+          hintText: 'Enter Address',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+          suffixIcon: IconButton(
+          icon: Icon(Icons.search),
+          onPressed: searchandNavigate,
+          iconSize: 30.0)),
+          onChanged: (val) {
+          setState(() {
+          searchAddr = val;
+        });
         },
+        ),
+        ),
+        ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -60,9 +100,17 @@ class _MapRenderState extends State<MapRender> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+  Future<void> searchandNavigate() async {
+    List<Location> location = await locationFromAddress(searchAddr);
+    mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target:
+        LatLng(location[0].latitude, location[1].longitude),
+        zoom: 10.0)));
+  }
 
-  Future<void> _goToTheLake() async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  void onMapCreated(controller) {
+    setState(() {
+      mapController = controller;
+    });
   }
 }
