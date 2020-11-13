@@ -30,6 +30,8 @@ dependencies:
   path:
   google_maps_flutter: ^1.0.0 #API for Maps services
   flutter_google_places: ^0.2.6
+  google_maps_webservice: ^0.0.18
+  geocoder: ^0.2.1
   geolocator: ^6.1.6
   geocoding: ^1.0.5
   permission_handler: ^5.0.1+1

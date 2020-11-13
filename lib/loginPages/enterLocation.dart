@@ -1,6 +1,11 @@
 import 'package:fire_project/navbar/bottom_navbar_page.dart';
 import 'package:flutter/material.dart';
 import'package:fire_project/globalData/globalVariables.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geocoder/geocoder.dart';
 
 class EnterLocation extends StatefulWidget {
   @override
@@ -8,12 +13,33 @@ class EnterLocation extends StatefulWidget {
 }
 
 class _EnterLocationState extends State<EnterLocation> {
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyBIzb_dLgIxzWKqieUe0-5Ak-gTBhklNJI");
+
   final formKey = GlobalKey<FormState>();
 
   String userAddress = Global.userAddress ?? "";
 
   final address1Controller =
   new TextEditingController(text: Global.userAddress ?? "");
+
+
+  String _locationMessage;
+
+   _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    print(position);
+    setState(() {
+      _locationMessage = "${position.latitude}, ${position.longitude}";
+    });
+    final coordinates = new Coordinates(
+        position.latitude, position.longitude);
+    var addresses = await Geocoder.local.findAddressesFromCoordinates(
+        coordinates);
+    var first = addresses.first;
+    print(' ${first.locality}, ${first.countryName}');
+    return first;
+  }
+
 
   void _signInAddress() {
     setState(() {
@@ -53,6 +79,9 @@ class _EnterLocationState extends State<EnterLocation> {
                 child: Form(
                   key: formKey,
                   child: TextFormField(
+                    onTap: (){
+                      userAddress = _getCurrentLocation();
+                    },
                     style: TextStyle(fontSize: 25),
                     validator: (val) {
                       if (val.isEmpty) {
@@ -87,6 +116,7 @@ class _EnterLocationState extends State<EnterLocation> {
         ),
         child: Icon(Icons.arrow_forward_ios_rounded),
       ),
+
     );
   }
 }
