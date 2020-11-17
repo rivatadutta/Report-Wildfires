@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:fire_project/views/confirmAndUpload.dart';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -25,19 +26,6 @@ class CameraExampleHome extends StatefulWidget {
   }
 }
 
-/// Returns a suitable camera icon for [direction].
-IconData getCameraLensIcon(CameraLensDirection direction) {
-  switch (direction) {
-    case CameraLensDirection.back:
-      return Icons.camera_rear;
-    case CameraLensDirection.front:
-      return Icons.camera_front;
-    case CameraLensDirection.external:
-      return Icons.camera;
-  }
-  throw ArgumentError('Unknown lens direction');
-}
-
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
@@ -49,13 +37,14 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   VoidCallback videoPlayerListener;
 
   bool _hasPermissions = false;
-  CompassEvent _lastRead;
+  CompassEvent _lastRead; //Compass Data to be sent to firebase
   DateTime _lastReadAt;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    onNewCameraSelected(cameras[0]);
   }
 
   @override
@@ -111,37 +100,18 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
               ),
             ),
           ),
-          _buildManualReader(),
+          _compassDataWidget(),
           _captureControlRowWidget(),
-          Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                _cameraTogglesRowWidget(),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildManualReader() {
+  Widget _compassDataWidget() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: <Widget>[
-          // RaisedButton(
-          //   child: Text('Read Compass'),
-          //   onPressed: () async {
-          //     final CompassEvent tmp = await FlutterCompass.events.first;
-          //     setState(() {
-          //       _lastRead = tmp;
-          //       _lastReadAt = DateTime.now();
-          //     });
-          //   },
-          // ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -238,31 +208,32 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   }
 
   /// Display a row of toggle to select the camera (or a message if no camera is available).
-  Widget _cameraTogglesRowWidget() {
-    final List<Widget> toggles = <Widget>[];
-
-    if (cameras.isEmpty) {
-      return const Text('No camera found');
-    } else {
-      for (CameraDescription cameraDescription in cameras) {
-        toggles.add(
-          SizedBox(
-            width: 90.0,
-            child: RadioListTile<CameraDescription>(
-              title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
-              groupValue: controller?.description,
-              value: cameraDescription,
-              onChanged: controller != null && controller.value.isRecordingVideo
-                  ? null
-                  : onNewCameraSelected,
-            ),
-          ),
-        );
-      }
-    }
-
-    return Row(children: toggles);
-  }
+  // Widget _cameraTogglesRowWidget() {
+  //   final List<Widget> toggles = <Widget>[];
+  //
+  //   if (cameras.isEmpty) {
+  //     return const Text('No camera found');
+  //   } else {
+  //     for (CameraDescription cameraDescription in cameras) {
+  //       print(cameraDescription);
+  //       toggles.add(
+  //         SizedBox(
+  //           width: 90.0,
+  //           child: RadioListTile<CameraDescription>(
+  //             title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
+  //             groupValue: controller?.description,
+  //             value: cameraDescription,
+  //             onChanged: controller != null && controller.value.isRecordingVideo
+  //                 ? null
+  //                 : onNewCameraSelected,
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //   }
+  //
+  //   return Row(children: toggles);
+  // }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -311,6 +282,15 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     takePicture().then((String filePath) {
       if (mounted) {
         setState(() {
+          // Navigator.push(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => ConfirmAndUpload(),
+          //     transitionsBuilder: (context, animation1, animation2, child) =>
+          //         FadeTransition(opacity: animation1, child: child),
+          //     transitionDuration: Duration(milliseconds: 300),
+          //   ),
+          // );
           imagePath = filePath;
         });
         if (filePath != null) showInSnackBar('Picture saved to $filePath');
