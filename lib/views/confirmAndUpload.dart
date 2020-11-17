@@ -17,9 +17,8 @@ void logError(String code, String message) =>
 
 class confirmAndUpload extends StatelessWidget {
   final String imagePath;
-  final CompassEvent compassData;
 
-  const confirmAndUpload({Key key, this.imagePath, this.compassData}) : super(key: key);
+  const confirmAndUpload({Key key, this.imagePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +118,6 @@ class _UploaderState extends State<Uploader> {
   FirebaseStorage(storageBucket: 'gs://fire-reporting-88f03.appspot.com');
 
   StorageUploadTask _uploadTask;
-  bool completed = false;
   String filePath;
   /// Starts an upload task
   void _startUpload() {

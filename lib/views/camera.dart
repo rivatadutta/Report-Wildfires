@@ -315,7 +315,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => confirmAndUpload(imagePath: filePath, compassData: _lastRead),
+              builder: (context) => confirmAndUpload(imagePath: filePath),
             ),
           );
         });
