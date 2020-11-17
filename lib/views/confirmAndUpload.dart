@@ -86,7 +86,7 @@ class confirmAndUpload extends StatelessWidget {
                       context,
                       PageRouteBuilder(
                       pageBuilder: (context, animation1, animation2) =>
-                          Uploader(file: File(imagePath), compassDirection: compassData),
+                          Uploader(file: File(imagePath)),
                   transitionsBuilder: (context, animation1, animation2,
                   child) =>
                   FadeTransition(opacity: animation1, child: child),
@@ -109,8 +109,7 @@ class confirmAndUpload extends StatelessWidget {
 
 class Uploader extends StatefulWidget {
   final File file;
-  final CompassEvent compassDirection;
-  Uploader({Key key, this.file, this.compassDirection}): super(key: key);
+  Uploader({Key key, this.file}): super(key: key);
    createState() => _UploaderState();
 }
 
