@@ -1,6 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fire_project/services/auth_service.dart';
 
+class FirebaseFunctions {
+  static Map<String, dynamic> currentUserData = {
+    "displayName": null,
+    "location": null,
+  };
+}
+
 class FirebaseAuthService implements AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
