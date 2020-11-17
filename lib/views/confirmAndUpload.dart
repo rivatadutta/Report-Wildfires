@@ -10,7 +10,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
-import '../globalVariables.dart';
+import '../globalData/globalVariables.dart';
 
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
