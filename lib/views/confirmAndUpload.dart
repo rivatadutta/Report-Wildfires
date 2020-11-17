@@ -1,163 +1,181 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fire_project/views/camera.dart';
 import 'package:camera/camera.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
-class ConfirmAndUpload extends StatefulWidget {
-  @override
-  _ConfirmAndUploadState createState() {
-    return _ConfirmAndUploadState();
-  }
-}
+import '../globalVariables.dart';
 
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
-class _ConfirmAndUploadState extends State<ConfirmAndUpload>
-    with WidgetsBindingObserver {
-  CameraController controller;
-  String imagePath;
-  String videoPath;
-  VideoPlayerController videoController;
-  VoidCallback videoPlayerListener;
-  bool enableAudio = true;
+class confirmAndUpload extends StatelessWidget {
+  final String imagePath;
+  final CompassEvent compassData;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  const confirmAndUpload({Key key, this.imagePath, this.compassData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Camera example'),
+        title: Text("Camera"),
+        elevation: 0.0,
+        backgroundColor: Color(Global.backgroundColor),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: _thumbnailWidget(),
-                ),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: Center(
+                child: Image.file(File(imagePath)),
               ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
-                  width: 3.0,
-                ),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: Colors.grey,
+                width: 3.0,
               ),
             ),
           ),
+          Row(
+          children: <Widget>[
+          Positioned(
+            bottom: 30.0,
+            child: Container(
+              height: 50.0,
+              child: IconButton(
+                icon: const Icon(Icons.cancel_outlined),
+                iconSize: 40,
+                color: Colors.blue,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          CameraApp(),
+                      transitionsBuilder: (context, animation1, animation2,
+                          child) =>
+                          FadeTransition(opacity: animation1, child: child),
+                      transitionDuration: Duration(milliseconds: 300),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 30.0,
+            left: 30.0,
+            child: Container(
+              height: 50.0,
+              child: IconButton(
+                icon: const Icon(Icons.check_circle_outlined),
+                iconSize: 40,
+                color: Colors.blue,
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          Uploader(file: File(imagePath), compassDirection: compassData),
+                  transitionsBuilder: (context, animation1, animation2,
+                  child) =>
+                  FadeTransition(opacity: animation1, child: child),
+                  transitionDuration: Duration(milliseconds: 300),
+                  ),
+                  );
+                },
+              ),
+            ),
+          ),
+  ],
+          ),
+                   // _compassDataWidget(),
+          // _captureControlRowWidget(),
         ],
       ),
     );
   }
-
-  /// Display the thumbnail of the captured image or video.
-  Widget _thumbnailWidget() {
-    return Expanded(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            videoController == null && imagePath == null
-                ? Container()
-                : SizedBox(
-              child: (videoController == null)
-                  ? Image.file(File(imagePath))
-                  : Container(
-                child: Center(
-                  child: AspectRatio(
-                      aspectRatio:
-                      videoController.value.size != null
-                          ? videoController.value.aspectRatio
-                          : 1.0,
-                      child: VideoPlayer(videoController)),
-                ),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.pink)),
-              ),
-              width: 64.0,
-              height: 64.0,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
-
-  void showInSnackBar(String message) {
-    // ignore: deprecated_member_use
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
-  }
-
-
-
-
-
-
-
-
-
-
-
-  Future<void> _startVideoPlayer() async {
-    final VideoPlayerController vcontroller =
-    VideoPlayerController.file(File(videoPath));
-    videoPlayerListener = () {
-      if (videoController != null && videoController.value.size != null) {
-        // Refreshing the state to update video player with the correct ratio.
-        if (mounted) setState(() {});
-        videoController.removeListener(videoPlayerListener);
-      }
-    };
-    vcontroller.addListener(videoPlayerListener);
-    await vcontroller.setLooping(true);
-    await vcontroller.initialize();
-    await videoController?.dispose();
-    if (mounted) {
-      setState(() {
-        imagePath = null;
-        videoController = vcontroller;
-      });
-    }
-    await vcontroller.play();
-  }
-
-  void _showCameraException(CameraException e) {
-    logError(e.code, e.description);
-    showInSnackBar('Error: ${e.code}\n${e.description}');
-  }
 }
 
-class CameraApp extends StatelessWidget {
+class Uploader extends StatefulWidget {
+  final File file;
+  final CompassEvent compassDirection;
+  Uploader({Key key, this.file, this.compassDirection}): super(key: key);
+   createState() => _UploaderState();
+}
+
+class _UploaderState extends State<Uploader> {
+
+  final FirebaseStorage _storage =
+  FirebaseStorage(storageBucket: 'gs://fire-reporting-88f03.appspot.com');
+
+  StorageUploadTask _uploadTask;
+  bool completed = false;
+  String filePath;
+  /// Starts an upload task
+  void _startUpload() {
+    /// Unique file name for the file
+    final filePath = 'images/${DateTime.now()}.png';
+
+    setState(() {
+      _uploadTask = _storage.ref().child(filePath).putFile(widget.file);
+    });
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ConfirmAndUpload(),
-    );
+    if (_uploadTask != null) {
+      /// Manage the task state and event subscription with a StreamBuilder
+      return StreamBuilder<StorageTaskEvent>(
+          stream: _uploadTask.events,
+          builder: (_, snapshot) {
+            var event = snapshot?.data?.snapshot;
+
+            double progressPercent = event != null
+                ? event.bytesTransferred / event.totalByteCount
+                : 0;
+            return Column(
+              children: [
+                if (_uploadTask.isComplete)
+                    Text('🎉🎉🎉'),
+                if (_uploadTask.isPaused)
+                  FlatButton(
+                    child: Icon(Icons.play_arrow),
+                    onPressed: _uploadTask.resume,
+                  ),
+                if (_uploadTask.isInProgress)
+                  FlatButton(
+                    child: Icon(Icons.pause),
+                    onPressed: _uploadTask.pause,
+                  ),
+                // Progress bar
+                LinearProgressIndicator(value: progressPercent),
+                Text(
+                    '${(progressPercent * 100).toStringAsFixed(2)} % '
+                ),
+              ],
+            );
+          });
+    } else {
+      // Allows user to decide when to start the upload
+      return FlatButton.icon(
+        label: Text('Upload Image'),
+        onPressed: _startUpload,
+      );
+    }
   }
 }
+

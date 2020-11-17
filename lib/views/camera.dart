@@ -70,6 +70,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 2;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,29 +80,45 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: _cameraPreviewWidget(),
-                ),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: Center(
+                child: _cameraPreviewWidget(),
               ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
-                  width: 3.0,
-                ),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: controller != null && controller.value.isRecordingVideo
+                    ? Colors.redAccent
+                    : Colors.grey,
+                width: 3.0,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 30.0,
+            right: 15.0,
+            left: 15.0,
+            child: Container(
+              height: 50.0,
+              child: IconButton(
+                icon: const Icon(Icons.camera_rounded),
+                iconSize: 50,
+                color: Colors.white,
+                onPressed: controller != null &&
+                        controller.value.isInitialized &&
+                        !controller.value.isRecordingVideo
+                    ? onTakePictureButtonPressed
+                    : null,
               ),
             ),
           ),
           _compassDataWidget(),
-          _captureControlRowWidget(),
+          // _captureControlRowWidget(),
         ],
       ),
     );
@@ -112,8 +129,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: <Widget>[
-          Expanded(
-            child: Padding(
+         // Expanded(
+            Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +146,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
                 ],
               ),
             ),
-          ),
+        //  ),
         ],
       ),
     );
@@ -282,6 +299,9 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     takePicture().then((String filePath) {
       if (mounted) {
         setState(() {
+          getHeading();     //get compass data
+          //get image coordinates
+          //get elevation
           // Navigator.push(
           //   context,
           //   PageRouteBuilder(
@@ -292,11 +312,16 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           //   ),
           // );
           imagePath = filePath;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => confirmAndUpload(imagePath: filePath, compassData: _lastRead),
+            ),
+          );
         });
         if (filePath != null) showInSnackBar('Picture saved to $filePath');
       }
     });
-    getHeading();
   }
 
   Future<String> takePicture() async {
@@ -328,3 +353,4 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     showInSnackBar('Error: ${e.code}\n${e.description}');
   }
 }
+
