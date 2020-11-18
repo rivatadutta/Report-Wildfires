@@ -17,8 +17,22 @@ class _MapRenderState extends State<MapRender> {
   String searchAddr;
   GoogleMapController mapController;
 
-
   Completer<GoogleMapController> _controller = Completer();
+
+  // // Creating a variable currPosition that will be used to store the users current position
+  // Position currPosition;
+  // LatLng currLocation;
+  //
+  // // Initializing center of map
+  // static LatLng _center;
+
+  // //Function used to get users original position
+  // Future<void> _getUserLocation() async {
+  //   currPosition = await currentLocation();
+  //   _center = LatLng(currPosition.latitude, currPosition.longitude);
+  //   await FirebaseFunctions.pushUserLocation(
+  //       currPosition.latitude, currPosition.longitude);
+  // }
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -40,45 +54,72 @@ class _MapRenderState extends State<MapRender> {
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
-      body:  Stack(
+      body: Stack(
         children: <Widget>[
           GoogleMap(
-        mapType: MapType.hybrid,
-        onMapCreated: onMapCreated,
-       // options: GoogleMapOptions(
-          initialCameraPosition: _kGooglePlex,
-    ),
-        //initialCameraPosition: _kGooglePlex,
-        //onMapCreated: (GoogleMapController controller) {
-        //  _controller.complete(controller);
-       // },
-    //  ),
-    Positioned(
-          top: 30.0,
-          right: 15.0,
-          left: 15.0,
-          child: Container(
-          height: 50.0,
-          width: double.infinity,
-          decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0), color: Colors.white),
-          child: TextField(
-          decoration: InputDecoration(
-          hintText: 'Enter Address',
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-          suffixIcon: IconButton(
-          icon: Icon(Icons.search),
-          onPressed: searchandNavigate,
-          iconSize: 30.0)),
-          onChanged: (val) {
-          setState(() {
-          searchAddr = val;
-        });
-        },
-        ),
-        ),
-        ),
+            mapType: MapType.hybrid,
+            onMapCreated: onMapCreated,
+            // initialCameraPosition: CameraPosition(
+            //   target: _center,
+            //   zoom: 14.0,
+            // ),
+            // options: GoogleMapOptions(
+            initialCameraPosition: _kGooglePlex,
+          ),
+          //initialCameraPosition: _kGooglePlex,
+          //onMapCreated: (GoogleMapController controller) {
+          //  _controller.complete(controller);
+          // },
+          //  ),
+          Positioned(
+            top: 30.0,
+            right: 15.0,
+            left: 15.0,
+            child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white),
+              child: TextField(
+                decoration: InputDecoration(
+                    hintText: 'Enter Address',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                    suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: searchandNavigate,
+                        iconSize: 30.0)),
+                onChanged: (val) {
+                  setState(() {
+                    searchAddr = val;
+                  });
+                },
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 130.0, 16.0, 16.0),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Column(
+                children: <Widget>[
+//Adding another floating button to mark locations
+                  FloatingActionButton(
+                    heroTag: 'setLocationTag',
+                    // onPressed: _onAddMarkerButtonPressed,
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    backgroundColor: Colors.redAccent,
+                    child: const Icon(
+                      Icons.add_location,
+                      size: 36.0,
+                    ),
+                  ),
+                  // confirmFinalPosition(),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -100,11 +141,11 @@ class _MapRenderState extends State<MapRender> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
   Future<void> searchandNavigate() async {
     List<Location> location = await locationFromAddress(searchAddr);
     mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target:
-        LatLng(location[0].latitude, location[1].longitude),
+        target: LatLng(location[0].latitude, location[1].longitude),
         zoom: 10.0)));
   }
 

@@ -26,13 +26,13 @@ class ViewMapOrReport extends StatefulWidget {
 }
 
 class _ViewMapOrReportState extends State<ViewMapOrReport> {
-
   Future<void> _signOut() async {
     try {
-      final AuthService authLogOut = Provider.of<AuthService>(context, listen: false);
+      final AuthService authLogOut =
+          Provider.of<AuthService>(context, listen: false);
       await authLogOut.signOut();
-    }  catch (e) {
-     print(e);
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -52,17 +52,18 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(30, 120, 30, 0),
-                  child: Text('Welcome ${FirebaseFunctions.currentUserData["displayName"]}',
-                style:
+                  child: Text(
+                      'Welcome ${FirebaseFunctions.currentUserData["displayName"]}',
+                      style:
                           TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
                 ),
               ),
               Align(
                 child: Container(
-                padding: EdgeInsets.fromLTRB(30, 10, 30, 0),
-                child: Text('What would you like to do today?',
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                  padding: EdgeInsets.fromLTRB(30, 10, 30, 0),
+                  child: Text('What would you like to do today?',
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                 ),
               ),
               Container(
@@ -98,7 +99,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
               Container(
                 margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
                 height: 60,
-                width: 220,
+                width: 240,
                 child: RaisedButton.icon(
                   onPressed: () {
                     int _currentIndex = 2;
@@ -140,7 +141,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                         pageBuilder: (context, animation1, animation2) =>
                             EnterName(),
                         transitionsBuilder: (context, animation1, animation2,
-                            child) =>
+                                child) =>
                             FadeTransition(opacity: animation1, child: child),
                         transitionDuration: Duration(milliseconds: 300),
                       ),

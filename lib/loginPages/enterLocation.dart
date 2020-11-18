@@ -1,6 +1,6 @@
 import 'package:fire_project/navbar/bottom_navbar_page.dart';
 import 'package:flutter/material.dart';
-import'package:fire_project/globalData/globalVariables.dart';
+import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -13,38 +13,38 @@ class EnterLocation extends StatefulWidget {
 }
 
 class _EnterLocationState extends State<EnterLocation> {
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: "AIzaSyBIzb_dLgIxzWKqieUe0-5Ak-gTBhklNJI");
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Global.kGoogleApiKey);
 
   final formKey = GlobalKey<FormState>();
 
-  String userAddress = Global.userAddress ?? "";
+  dynamic userAddress = Global.userAddress ?? "";
 
   final address1Controller =
-  new TextEditingController(text: Global.userAddress ?? "");
-
+      new TextEditingController(text: Global.userAddress ?? "");
 
   String _locationMessage;
 
-   _getCurrentLocation() async {
-    final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  _getCurrentLocation() async {
+    final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     print(position);
     setState(() {
       _locationMessage = "${position.latitude}, ${position.longitude}";
     });
-    final coordinates = new Coordinates(
-        position.latitude, position.longitude);
-    var addresses = await Geocoder.local.findAddressesFromCoordinates(
-        coordinates);
+    final coordinates = new Coordinates(position.latitude, position.longitude);
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
     var first = addresses.first;
     print(' ${first.locality}, ${first.countryName}');
-    return first;
-  }
 
+    // return first;
+    address1Controller.text = position.toString();
+  }
 
   void _signInAddress() {
     setState(() {
       if (formKey.currentState.validate()) {
-        String userAddress = address1Controller.text;
+        dynamic userAddress = address1Controller.text;
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -65,13 +65,13 @@ class _EnterLocationState extends State<EnterLocation> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
-                child: Text('And your location?',
-                    style:
-                    TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
+                  child: Text('And your location?',
+                      style:
+                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                 ),
               ),
               Container(
@@ -79,9 +79,9 @@ class _EnterLocationState extends State<EnterLocation> {
                 child: Form(
                   key: formKey,
                   child: TextFormField(
-                    onTap: (){
-                      userAddress = _getCurrentLocation();
-                    },
+                    // onTap: () {
+                    // userAddress = _getCurrentLocation();
+                    // },
                     style: TextStyle(fontSize: 25),
                     validator: (val) {
                       if (val.isEmpty) {
@@ -91,7 +91,7 @@ class _EnterLocationState extends State<EnterLocation> {
                     },
                     controller: address1Controller,
                     decoration: InputDecoration(
-                      hintText: "address:",
+                      hintText: "Enter address:",
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.deepOrangeAccent),
                       ),
@@ -100,6 +100,21 @@ class _EnterLocationState extends State<EnterLocation> {
                       userAddress = text;
                     },
                   ),
+                ),
+              ),
+              Container(
+                child: Text('or',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                child: TextButton(
+                  onPressed: () {
+                    userAddress = _getCurrentLocation();
+                  },
+                  child: Text('Use current location',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -116,9 +131,6 @@ class _EnterLocationState extends State<EnterLocation> {
         ),
         child: Icon(Icons.arrow_forward_ios_rounded),
       ),
-
     );
   }
 }
-
-
