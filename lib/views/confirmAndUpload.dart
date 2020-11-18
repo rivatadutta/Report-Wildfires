@@ -14,7 +14,11 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
+<<<<<<< HEAD
 import 'package:fire_project/globalData/globalVariables.dart';
+=======
+import '../globalData/globalVariables.dart';
+>>>>>>> 7e664a95e3694538e76dff25da39a39e42ecf988
 
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');

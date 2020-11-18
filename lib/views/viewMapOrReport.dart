@@ -1,4 +1,4 @@
-import 'package:fire_project/globalData/firebaseFunctions.dart';
+import 'package:fire_project/services/firebase_auth_service.dart';
 import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/views/camera.dart';
 import 'package:fire_project/views/mapRender.dart';
