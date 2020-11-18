@@ -70,7 +70,6 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 2;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

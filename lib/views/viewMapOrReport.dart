@@ -101,6 +101,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                 width: 220,
                 child: RaisedButton.icon(
                   onPressed: () {
+                    int _currentIndex = 2;
                     Navigator.push(
                       context,
                       PageRouteBuilder(
