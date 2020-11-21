@@ -38,13 +38,19 @@ class _EnterLocationState extends State<EnterLocation> {
     print(' ${first.locality}, ${first.countryName}');
 
     // return first;
-    address1Controller.text = position.toString();
+    address1Controller.text = "${position.latitude}, ${position.longitude}";
+
+    Global.lat = '${position.latitude}';
+    Global.long = '${position.longitude}';
+    print(Global.lat + ' and ' + Global.long);
+    _signInAddress();
   }
 
   void _signInAddress() {
     setState(() {
       if (formKey.currentState.validate()) {
         dynamic userAddress = address1Controller.text;
+        print('userAddress is: ' + userAddress);
         Navigator.push(
           context,
           PageRouteBuilder(
