@@ -37,6 +37,8 @@ dependencies:
   permission_handler: ^5.0.1+1
   camera:
   provider: ^3.0.0
+  tuple: ^1.0.3
+  vector_math:
   flutter_compass: ^0.5.0
   flutter_phoenix: ^0.1.0
     # Check that you have this dependency (added in the previous step)

@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:vector_math/vector_math_64.dart' hide Colors;
+import 'package:tuple/tuple.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
@@ -29,6 +32,45 @@ class _MapRenderState extends State<MapRender> {
     super.initState();
     _getUserLocation();
     setCustomMapPin();
+  }
+
+  Tuple2<double,double> findIntersection(Tuple2<double,double> location1, Tuple2<double,double> location2, double heading1, double heading2) {
+    // We basically perform Gaussian elimination on a 2x2 matrix to solve for variables.
+    // Then plug variables into parameterization of eqs.
+    //
+    // Find where vectors are equal
+    // Long1 + sin(head1)X = Long2 + sin(head2)Y
+    // Lat1 + cos(head1)X = Lat2 + cos(head2)Y
+    // Manipulate and represent as matrix
+    // [sin(head1)X - sin(head2)Y | (Long2 - Long1)]
+    // [cos(head1)X - cos(head2)Y | (Lat2 - Lat1)]
+    var mtx = Matrix3(
+        sin(heading1*(pi/180)),
+        cos(heading1*(pi/180)),
+        0,
+        -1*sin(heading2*(pi/180)),
+        -1*cos(heading2*(pi/180)),
+        0,
+        location2.item1 - location1.item1,
+        location2.item2 - location1.item2,
+        0);
+
+    // Subtract (ratio * Row0) from Row1 in order to cancel out cos(head1)X
+    var ratio = mtx.entry(1,0) / mtx.entry(0,0);
+    mtx.setEntry(1,0, 0);
+    mtx.setEntry(1,1, mtx.entry(1,1) - ratio*mtx.entry(0,1));
+    mtx.setEntry(1,2, mtx.entry(1,2) - ratio*mtx.entry(0,2));
+
+    // Divide to find value of Y
+    var y = mtx.entry(1,2) / mtx.entry(1,1);
+
+    // Substitute Y into Row0 and solve for X
+    var x = (mtx.entry(0,2) - y*mtx.entry(0,1)) / mtx.entry(0,0);
+
+    // Substitute x into parameter equation to find intersection point
+    return Tuple2<double,double>(
+        location1.item1 + sin(heading1*(pi/180)) * x,
+        location1.item2 + cos(heading1*(pi/180)) * x);
   }
 
   void setCustomMapPin() async {
@@ -77,6 +119,11 @@ class _MapRenderState extends State<MapRender> {
   }
 
   _onAddMarkerButtonPressed() {
+    // Example of findIntersection
+    const a = const Tuple2<double,double>(-122.050316, 36.993127);
+    const b = const Tuple2<double,double>(-122.053105, 36.970124);
+    Tuple2<double,double> inter = findIntersection(a, b, 250, 290);
+    print("Intersection:" + inter.toString());
     setState(() {
       _markers.add(Marker(
           markerId: MarkerId(_lastMapPosition.toString()),
