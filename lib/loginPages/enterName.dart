@@ -33,7 +33,8 @@ class _EnterNameState extends State<EnterName> {
 
   final formKey = GlobalKey<FormState>();
   static String displayName;
-
+  String userId;
+  StoredUserData _storedUserData;
   DatabaseReference dbRef = FirebaseDatabase.instance.reference().child("Users");
 
 
@@ -48,7 +49,10 @@ class _EnterNameState extends State<EnterName> {
       await auth.signInAnonymously();
       //store user on firebase
       User user = await auth.currentUser();
-      String userId = user.uid;
+      String userId;
+      setState(() {
+        userId = user.uid;
+      });
       CollectionReference users = Firestore.instance.collection('users');
       users.document(userId).setData({
         'displayName': displayName,
@@ -65,11 +69,14 @@ class _EnterNameState extends State<EnterName> {
   void _signInName() {
     setState(() {
       if (formKey.currentState.validate()) {
+        _storedUserData = StoredUserData(
+          userId: userId,
+        );
         String displayName = userNameController.text;
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => EnterLocation(),
+            pageBuilder: (context, animation1, animation2) => EnterLocation(userData: _storedUserData),
             transitionsBuilder: (context, animation1, animation2, child) =>
                 FadeTransition(opacity: animation1, child: child),
             transitionDuration: Duration(milliseconds: 300),
@@ -136,5 +143,9 @@ class _EnterNameState extends State<EnterName> {
     );
   }
 }
+
+
+
+
 
 

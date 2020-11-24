@@ -1,4 +1,5 @@
 import 'package:fire_project/navbar/bottom_navbar_page.dart';
+import 'package:fire_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -8,11 +9,16 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geocoder/geocoder.dart';
 
 class EnterLocation extends StatefulWidget {
-  @override
+
+  final StoredUserData userData;
+
+  EnterLocation({Key key, this.userData}) : super(key: key);
+
   _EnterLocationState createState() => _EnterLocationState();
 }
 
 class _EnterLocationState extends State<EnterLocation> {
+
   GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Global.kGoogleApiKey);
 
   final formKey = GlobalKey<FormState>();
@@ -54,7 +60,7 @@ class _EnterLocationState extends State<EnterLocation> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => TabsPage(),
+            pageBuilder: (context, animation1, animation2) => TabsPage(userData: widget.userData),
             transitionsBuilder: (context, animation1, animation2, child) =>
                 FadeTransition(opacity: animation1, child: child),
             transitionDuration: Duration(milliseconds: 300),

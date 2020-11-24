@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/views/confirmAndUpload.dart';
-
+import 'package:flutter/services.dart';
+import 'package:rxdart/subjects.dart';
 import 'package:camera/camera.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 
@@ -33,12 +38,14 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     with WidgetsBindingObserver {
   CameraController controller;
   String imagePath;
+  CompassEvent compassData;
   String videoPath;
   VoidCallback videoPlayerListener;
 
   bool _hasPermissions = false;
   CompassEvent _lastRead; //Compass Data to be sent to firebase
   DateTime _lastReadAt;
+  double _compassVal;
 
   @override
   void initState() {
@@ -253,9 +260,10 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
-  void getHeading() async {
+  Future<void> getHeading() async {
     final CompassEvent tmp = await FlutterCompass.events.first;
     setState(() {
+      _compassVal = tmp.heading;
       _lastRead = tmp;
       _lastReadAt = DateTime.now();
     });
@@ -296,9 +304,16 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   void onTakePictureButtonPressed() {
     takePicture().then((String filePath) {
+      getCompassData().then((double compassVal){
+        getPictureLocation().then((GeoPoint geoPoint){
       if (mounted) {
-        setState(() {
-          getHeading();     //get compass data
+        setState((){
+          setImageData imageData = setImageData(
+            imagePath: filePath,
+            timeTaken: DateTime.now(),
+            compassData: compassVal,
+            imagePosition: geoPoint,
+          );
           //get image coordinates
           //get elevation
           // Navigator.push(
@@ -310,16 +325,17 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           //     transitionDuration: Duration(milliseconds: 300),
           //   ),
           // );
-          imagePath = filePath;
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => confirmAndUpload(imagePath: filePath),
+              builder: (context) => confirmAndUpload(imageData: imageData),
             ),
           );
-        });
+      });
         if (filePath != null) showInSnackBar('Picture saved to $filePath');
       }
+      });
+      });
     });
   }
 
@@ -347,9 +363,43 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     return filePath;
   }
 
+  Future<double> getCompassData() async {
+    await getHeading();
+    double compassVal;
+    setState(() {
+      compassVal = _compassVal;
+    });
+    return  compassVal;
+  }
+
+  Future<GeoPoint> getPictureLocation() async {
+    final Position imagePosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    GeoPoint geoPoint;
+    setState(() {
+      geoPoint = new GeoPoint(imagePosition.latitude, imagePosition.longitude);
+    });
+    return geoPoint;
+  }
+
+
   void _showCameraException(CameraException e) {
     logError(e.code, e.description);
     showInSnackBar('Error: ${e.code}\n${e.description}');
   }
+}
+
+@immutable
+class setImageData {
+  const setImageData({
+    @required this.imagePath,
+    @required this.compassData,
+    @required this.timeTaken,
+    @required this.imagePosition,
+  });
+
+  final String imagePath;
+  final double compassData;
+  final DateTime timeTaken;
+  final GeoPoint imagePosition;
 }
 

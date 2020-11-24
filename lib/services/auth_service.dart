@@ -10,6 +10,16 @@ class User {
   final String uid;
 }
 
+@immutable
+class StoredUserData{
+  const StoredUserData({
+    @required this.userId,
+  });
+
+  final String userId;
+}
+
+
 abstract class AuthService {
   Future<User> currentUser();
   Future<User> signInAnonymously();

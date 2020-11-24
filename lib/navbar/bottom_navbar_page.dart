@@ -1,10 +1,12 @@
 import 'package:fire_project/navbar/bottom_navbar_widget.dart';
+import 'package:fire_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 
 class TabsPage extends StatefulWidget {
-  @override
+  static StoredUserData userData;
+  TabsPage({Key key, userData}) : super(key: key);
   _TabsPageState createState() => _TabsPageState();
 }
 

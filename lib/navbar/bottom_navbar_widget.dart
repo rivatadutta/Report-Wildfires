@@ -1,9 +1,13 @@
+import 'package:fire_project/services/auth_service.dart';
+import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/views/camera.dart';
 import 'package:fire_project/views/mapRender.dart';
 import 'package:fire_project/views/viewMapOrReport.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
+import 'bottom_navbar_page.dart';
 
 
 class TabNavigationItem {
@@ -35,4 +39,5 @@ class TabNavigationItem {
           title: Text("View Map"),
         ),
       ];
+
 }

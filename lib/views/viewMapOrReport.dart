@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/services/firebase_auth_service.dart';
 import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/views/camera.dart';
@@ -35,6 +37,9 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
       print(e);
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,3 +171,6 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
     );
   }
 }
+
+
+
