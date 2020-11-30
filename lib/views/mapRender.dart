@@ -66,11 +66,26 @@ class _MapRenderState extends State<MapRender> {
 
     // Substitute Y into Row0 and solve for X
     var x = (mtx.entry(0,2) - y*mtx.entry(0,1)) / mtx.entry(0,0);
+    // print("x:" + x.toString() + "y:" + y.toString());
 
     // Substitute x into parameter equation to find intersection point
     return Tuple2<double,double>(
         location1.item1 + sin(heading1*(pi/180)) * x,
         location1.item2 + cos(heading1*(pi/180)) * x);
+  }
+
+  Tuple2<double,double> averageCoords(List<Tuple2<double,double>> coords){
+    double item1Avg = 0;
+    double item2Avg = 0;
+
+    for (var i = 0; i < coords.length; i++){
+      item1Avg += coords[i].item1;
+      item2Avg += coords[i].item2;
+    }
+    item1Avg = item1Avg / coords.length;
+    item2Avg = item2Avg / coords.length;
+
+    return Tuple2<double,double>(item1Avg,item2Avg);
   }
 
   void setCustomMapPin() async {
@@ -119,11 +134,15 @@ class _MapRenderState extends State<MapRender> {
   }
 
   _onAddMarkerButtonPressed() {
-    // Example of findIntersection
+    // Example of findIntersection and average
     const a = const Tuple2<double,double>(-122.050316, 36.993127);
     const b = const Tuple2<double,double>(-122.053105, 36.970124);
     Tuple2<double,double> inter = findIntersection(a, b, 250, 290);
-    print("Intersection:" + inter.toString());
+    List<Tuple2<double,double>> intersectionList = [a, b, inter];
+    Tuple2<double,double> avg = averageCoords(intersectionList);
+    print("inter:" + inter.toString());
+    print("Avg of a, b, inter:" + avg.toString());
+
     setState(() {
       _markers.add(Marker(
           markerId: MarkerId(_lastMapPosition.toString()),
