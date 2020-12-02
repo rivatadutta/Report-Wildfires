@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
+import 'package:fire_project/landingPage.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class confirmAndUpload extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Camera"),
+        title: Text("Confirm"),
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),

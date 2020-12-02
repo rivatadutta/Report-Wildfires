@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fire_project/services/auth_service.dart';
 import 'package:fire_project/views/confirmAndUpload.dart';
@@ -86,6 +87,9 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
+      // body: Center(
+      //   child: _buildCompass(),
+      // ),
       body: Stack(
         children: <Widget>[
           Container(
@@ -123,8 +127,18 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
               ),
             ),
           ),
-          _compassDataWidget(),
-          // _captureControlRowWidget(),
+          Positioned(
+            // top: 30.0,
+            // right: 15.0,
+            // left: 15.0,
+            child: Container(
+              height: 100.0,
+              child: Center(
+                child: _buildCompass(),
+              )
+            ),
+          ),
+          // _compassDataWidget(),
         ],
       ),
     );
@@ -177,86 +191,48 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     }
   }
 
-  // /// Display the thumbnail of the captured image or video.
-  // Widget _thumbnailWidget() {
-  //   return Expanded(
-  //     child: Align(
-  //       alignment: Alignment.centerRight,
-  //       child: Row(
-  //         mainAxisSize: MainAxisSize.min,
-  //         children: <Widget>[
-  //           videoController == null && imagePath == null
-  //               ? Container()
-  //               : SizedBox(
-  //             child: (videoController == null)
-  //                 ? Image.file(File(imagePath))
-  //                 : Container(
-  //               child: Center(
-  //                 child: AspectRatio(
-  //                     aspectRatio:
-  //                     videoController.value.size != null
-  //                         ? videoController.value.aspectRatio
-  //                         : 1.0,
-  //                     child: VideoPlayer(videoController)),
-  //               ),
-  //               decoration: BoxDecoration(
-  //                   border: Border.all(color: Colors.pink)),
-  //             ),
-  //             width: 64.0,
-  //             height: 64.0,
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildCompass() {
+    return StreamBuilder<CompassEvent>(
+      stream: FlutterCompass.events,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error reading heading: ${snapshot.error}');
+        }
 
-  /// Display the control bar with buttons to take pictures and record videos.
-  Widget _captureControlRowWidget() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        IconButton(
-          icon: const Icon(Icons.camera_alt),
-          color: Colors.blue,
-          onPressed: controller != null &&
-                  controller.value.isInitialized &&
-                  !controller.value.isRecordingVideo
-              ? onTakePictureButtonPressed
-              : null,
-        ),
-      ],
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        double direction = snapshot.data.heading;
+
+        // if direction is null, then device does not support this sensor
+        // show error message
+        if (direction == null)
+          return Center(
+            child: Text("Device does not have sensors !"),
+          );
+
+        return Material(
+          shape: CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          elevation: 4.0,
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: Transform.rotate(
+              angle: ((direction ?? 0) * (math.pi / 180) * -1),
+              child: Image.asset('assets/images/compass.jpg'),
+            ),
+          ),
+        );
+      },
     );
   }
-
-  /// Display a row of toggle to select the camera (or a message if no camera is available).
-  // Widget _cameraTogglesRowWidget() {
-  //   final List<Widget> toggles = <Widget>[];
-  //
-  //   if (cameras.isEmpty) {
-  //     return const Text('No camera found');
-  //   } else {
-  //     for (CameraDescription cameraDescription in cameras) {
-  //       print(cameraDescription);
-  //       toggles.add(
-  //         SizedBox(
-  //           width: 90.0,
-  //           child: RadioListTile<CameraDescription>(
-  //             title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
-  //             groupValue: controller?.description,
-  //             value: cameraDescription,
-  //             onChanged: controller != null && controller.value.isRecordingVideo
-  //                 ? null
-  //                 : onNewCameraSelected,
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //   }
-  //
-  //   return Row(children: toggles);
-  // }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
