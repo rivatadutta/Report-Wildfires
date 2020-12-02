@@ -74,12 +74,12 @@ class _MapRenderState extends State<MapRender> {
           position: LatLng(imageDocRef.data['imagePosition'].latitude,
               imageDocRef.data['imagePosition'].longitude),
           onTap: () =>
-              [_changeMap(LatLng(
-                  imageDocRef.data['imagePosition'].latitude,
-                  imageDocRef.data['imagePosition'].longitude)),
-                _showMarkerData(imageUrl, imageDocRef.data['timeTaken'],LatLng(
-                    imageDocRef.data['imagePosition'].latitude,
-                    imageDocRef.data['imagePosition'].longitude)),
+          [_changeMap(LatLng(
+              imageDocRef.data['imagePosition'].latitude,
+              imageDocRef.data['imagePosition'].longitude)),
+            _showMarkerData(imageUrl, imageDocRef.data['timeTaken'], LatLng(
+                imageDocRef.data['imagePosition'].latitude,
+                imageDocRef.data['imagePosition'].longitude)),
           ],
 
           infoWindow: InfoWindow(
@@ -101,10 +101,12 @@ class _MapRenderState extends State<MapRender> {
     //iterat
     //call intersection
     for (DocumentSnapshot image1 in imageDocumentsList) {
-      DocumentReference imageReference1 = Firestore.instance.collection("images").document(image1.documentID);
+      DocumentReference imageReference1 = Firestore.instance.collection(
+          "images").document(image1.documentID);
       DocumentSnapshot imageDocRef1 = await imageReference1.get();
       for (DocumentSnapshot image2 in imageDocumentsList) {
-        DocumentReference imageReference2 = Firestore.instance.collection("images").document(image2.documentID);
+        DocumentReference imageReference2 = Firestore.instance.collection(
+            "images").document(image2.documentID);
         DocumentSnapshot imageDocRef2 = await imageReference2.get();
         //Don't look at the same points.
         if (image1 == image2) {
@@ -120,7 +122,8 @@ class _MapRenderState extends State<MapRender> {
               imageDocRef2.data['imagePosition'].latitude,
               imageDocRef1.data['imagePosition'].longitude);
           fireMarker = findIntersection(a, b, imageHeading1, imageHeading2);
-          intersectionList.add(fireMarker); //list of all intersection`s between all images
+          intersectionList.add(
+              fireMarker); //list of all intersection`s between all images
         }
       }
     }
@@ -147,8 +150,7 @@ class _MapRenderState extends State<MapRender> {
             uniqueIntersectionMarkers.add(fireMarkers2);
           }
         }
-        else{
-        }
+        else {}
       }
     }
 
@@ -165,7 +167,7 @@ class _MapRenderState extends State<MapRender> {
           icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueRed)),
       );
-        markerId++;
+      markerId++;
     }
 
     return Future.value(markersList);
