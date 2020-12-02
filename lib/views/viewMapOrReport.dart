@@ -151,7 +151,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
 
                       label: Padding(
                         padding: EdgeInsets.only(left:0, top: 0, right: 15, bottom: 0),
-                        child: Expanded(
+                       // child: Expanded(
                       child: RichText(
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.ltr,
@@ -165,7 +165,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                         ],
                       ),
                     ),
-                      ),
+                      //),
                         ),
                       icon: Padding(
                         padding:EdgeInsets.only(left:15, top: 0, right: 0, bottom: 0) ,
@@ -205,7 +205,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                   elevation: 5,
                   label: Padding(
                     padding: EdgeInsets.only(left:0, top: 0, right: 25, bottom: 0),
-                    child: Expanded(
+                    //child: Expanded(
                     child: RichText(
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.ltr,
@@ -219,7 +219,6 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
                         ],
                       ),
                     ),
-                  ),
                   ),
                   icon: Padding(
                     padding: EdgeInsets.only(left:15, top: 0, right: 0, bottom: 0),
