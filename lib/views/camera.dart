@@ -94,19 +94,17 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         children: <Widget>[
           Container(
             child: Padding(
-              padding: const EdgeInsets.all(1.0),
+              padding: const EdgeInsets.all(0.0),
               child: Center(
                 child: _cameraPreviewWidget(),
               ),
             ),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Color(Global.backgroundColor),
               border: Border.all(
-                color: controller != null && controller.value.isRecordingVideo
-                    ? Colors.redAccent
-                    : Colors.grey,
-                width: 3.0,
-              ),
+              color: Colors.grey,
+              width: 0.00,
+            ),
             ),
           ),
           Positioned(
@@ -114,10 +112,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             right: 15.0,
             left: 15.0,
             child: Container(
-              height: 50.0,
+              height: 60,
               child: IconButton(
                 icon: const Icon(Icons.camera_rounded),
-                iconSize: 50,
+                iconSize: 70,
+                splashColor: Colors.black12,
+                highlightColor: Colors.orangeAccent[200],
                 color: Colors.white,
                 onPressed: controller != null &&
                         controller.value.isInitialized &&
@@ -128,12 +128,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             ),
           ),
           Positioned(
-            // top: 30.0,
-            // right: 15.0,
-            // left: 15.0,
+            top: 40.0,
+            right: 8.0,
             child: Container(
-              height: 100.0,
-              child: Center(
+              height: 50.0,
+              child: Align(
+                alignment: Alignment.topLeft,
                 child: _buildCompass(),
               )
             ),
@@ -151,7 +151,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         children: <Widget>[
          // Expanded(
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -219,10 +219,12 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           clipBehavior: Clip.antiAlias,
           elevation: 4.0,
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(1.0),
             alignment: Alignment.center,
             decoration: BoxDecoration(
+              color: Color(Global.backgroundColor),
               shape: BoxShape.circle,
+              border: Border.all(color: Color((Global.backgroundColor)), width: 2,)
             ),
             child: Transform.rotate(
               angle: ((direction ?? 0) * (math.pi / 180) * -1),

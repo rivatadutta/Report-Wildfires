@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:tuple/tuple.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +13,23 @@ import 'package:geocoder/geocoder.dart';
 import 'package:flutter/cupertino.dart';
 import 'camera.dart';
 
+class PinInformation {
+  Image image;
+  LatLng location;
+  DateTime timeTaken;
+  PinInformation({
+    this.image,
+    this.location,
+    this.timeTaken,
+});}
+
 class MapRender extends StatefulWidget {
   @override
   _MapRenderState createState() => _MapRenderState();
 }
 
 class _MapRenderState extends State<MapRender> {
+
   String searchAddr;
   GoogleMapController mapController;
 
@@ -27,12 +40,148 @@ class _MapRenderState extends State<MapRender> {
   final Set<Marker> _markers = {};
   static LatLng _lastMapPosition = _initialPosition;
 
+
+  List<Marker> markers = [];
+  List<Tuple2<double, double>> intersectionList = [];
+  List<Tuple2<double, double>> uniqueIntersectionMarkers = [];
+
+  Future<List<Marker>> _createMarkersForUserImagesandFires() async {
+    List<Marker> markersList = [];
+    List<DocumentSnapshot> imageDocumentsList = [];
+    int markerId = 0;
+
+
+    //create list of all image document ids
+    QuerySnapshot querySnapshot = await Firestore.instance.collection("images")
+        .getDocuments();
+    for (int i = 0; i < querySnapshot.documents.length; i++) {
+      var a = querySnapshot.documents[i];
+      print(a);
+      imageDocumentsList.add(a);
+    }
+    //iterate through all images uploaded to firebase
+    for (DocumentSnapshot document in imageDocumentsList) {
+      // ignore: deprecated_member_use
+      String documentId = document.documentID;
+      DocumentReference imageReference = Firestore.instance.collection("images")
+          .document(documentId);
+      DocumentSnapshot imageDocRef = await imageReference.get();
+
+      String imageUrl = imageDocRef.data["url"];
+
+      markersList.add(Marker(
+          markerId: MarkerId(markerId.toString()),
+          position: LatLng(imageDocRef.data['imagePosition'].latitude,
+              imageDocRef.data['imagePosition'].longitude),
+          onTap: () =>
+              [_changeMap(LatLng(
+                  imageDocRef.data['imagePosition'].latitude,
+                  imageDocRef.data['imagePosition'].longitude)),
+                _showMarkerData(imageUrl, imageDocRef.data['timeTaken'],LatLng(
+                    imageDocRef.data['imagePosition'].latitude,
+                    imageDocRef.data['imagePosition'].longitude)),
+          ],
+
+          infoWindow: InfoWindow(
+            title: imageDocRef.data['timeTaken'].toString(),
+            snippet: null,),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueYellow)),
+      );
+      markerId++;
+    }
+
+   /* double imageHeading1;
+    double imageHeading2;
+
+    Tuple2 a;
+    Tuple2 b;
+    Tuple2 fireMarker;
+
+    //iterat
+    //call intersection
+    for (DocumentSnapshot image1 in imageDocumentsList) {
+      DocumentReference imageReference1 = Firestore.instance.collection("images").document(image1.documentID);
+      DocumentSnapshot imageDocRef1 = await imageReference1.get();
+      for (DocumentSnapshot image2 in imageDocumentsList) {
+        DocumentReference imageReference2 = Firestore.instance.collection("images").document(image2.documentID);
+        DocumentSnapshot imageDocRef2 = await imageReference2.get();
+        //Don't look at the same points.
+        if (image1 == image2) {
+          continue;
+        }
+        else {
+          imageHeading1 = imageDocRef1.data['compassData'];
+          imageHeading2 = imageDocRef2.data['compassData'];
+          a = Tuple2<double, double>(
+              imageDocRef1.data['imagePosition'].latitude,
+              imageDocRef1.data['imagePosition'].longitude);
+          b = Tuple2<double, double>(
+              imageDocRef2.data['imagePosition'].latitude,
+              imageDocRef1.data['imagePosition'].longitude);
+          fireMarker = findIntersection(a, b, imageHeading1, imageHeading2);
+          intersectionList.add(fireMarker); //list of all intersection`s between all images
+        }
+      }
+    }
+
+    //Messing around with seeing intersections that are similar
+    for (Tuple2 fireMarkers1 in intersectionList) {
+      for (Tuple2 fireMarkers2 in intersectionList) {
+        if (fireMarkers1 == fireMarkers2) {
+          continue;
+        }
+        //calculate distance between two intersection points
+        var _distanceInMeters = Geolocator.distanceBetween(
+          fireMarkers1.item1,
+          fireMarkers1.item2,
+          fireMarkers2.item1,
+          fireMarkers2.item2,
+        );
+        //if intersection point distances are > than .5 miles, then it is unique intersection point
+        if (_distanceInMeters > 805) {
+          if (!uniqueIntersectionMarkers.contains(fireMarkers1)) {
+            uniqueIntersectionMarkers.add(fireMarkers1);
+          }
+          if (!uniqueIntersectionMarkers.contains(fireMarkers2)) {
+            uniqueIntersectionMarkers.add(fireMarkers2);
+          }
+        }
+      }
+    }
+
+    for (Tuple2<double, double> fireMarkers in uniqueIntersectionMarkers) {
+      markersList.add(Marker(
+          markerId: MarkerId(markerId.toString()),
+          position: LatLng(fireMarkers.item1, fireMarkers.item2),
+          onTap: () =>
+              _changeMap(LatLng(
+                  fireMarkers.item1, fireMarkers.item2)),
+          infoWindow: InfoWindow(
+            title: "fire",
+            snippet: null,),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueRed)),
+      );
+        markerId++;
+    }*/
+
+    return Future.value(markersList);
+  }
+
+
+
   @override
   void initState() {
     super.initState();
     _getUserLocation();
-    setCustomMapPin();
+    _createMarkersForUserImagesandFires().then((List<Marker> imageMarkers){
+      setState((){
+        markers = imageMarkers;
+      });
+    });
   }
+
 
   Tuple2<double,double> findIntersection(Tuple2<double,double> location1, Tuple2<double,double> location2, double heading1, double heading2) {
     // We basically perform Gaussian elimination on a 2x2 matrix to solve for variables.
@@ -88,6 +237,7 @@ class _MapRenderState extends State<MapRender> {
     return Tuple2<double,double>(item1Avg,item2Avg);
   }
 
+
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/icon/icon.png.png');
@@ -133,7 +283,9 @@ class _MapRenderState extends State<MapRender> {
     _lastMapPosition = position.target;
   }
 
+
   _onAddMarkerButtonPressed() {
+   // _findIntersectionMarkers();
     // Example of findIntersection and average
     const a = const Tuple2<double,double>(-122.050316, 36.993127);
     const b = const Tuple2<double,double>(-122.053105, 36.970124);
@@ -167,6 +319,29 @@ class _MapRenderState extends State<MapRender> {
     );
   }
 
+  Widget _showMarkerData(String imageUrl, DateTime timeTaken, LatLng position) {
+    String print = position.toString();
+    return Row(
+      children:[
+        Positioned(
+          bottom:50,
+          child: Container(
+              width:100,
+              height: 100,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    fit: BoxFit.contain,
+                    image: NetworkImage(imageUrl)
+                  //NetworkImage(imageUrl, )),
+              )
+             // child: Text("${print}")),
+            ),
+        ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,7 +365,7 @@ class _MapRenderState extends State<MapRender> {
                 GoogleMap(
                   mapType: _currentMapType,
                   onMapCreated: _onMapCreated,
-                  markers: _markers,
+                  markers: markers.toSet(),
                   initialCameraPosition: CameraPosition(
                     target: _initialPosition,
                     zoom: 14.0,
@@ -265,6 +440,20 @@ class _MapRenderState extends State<MapRender> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
+  _changeMap(LatLng position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(
+        bearing: 0,
+        target: LatLng(position.latitude, position.longitude),
+        zoom: 19.4,
+      ),
+    ));
+
+
+  }
+
 }
 
 /*

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:fire_project/views/viewMapOrReport.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -21,6 +23,8 @@ import 'package:video_player/video_player.dart';
 
 import 'package:fire_project/globalData/globalVariables.dart';
 
+import 'mapRender.dart';
+
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
@@ -34,7 +38,7 @@ class confirmAndUpload extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Confirm"),
+        title: Text("Confirm Image Upload", style: TextStyle(color: Color(Global.selectedIconColor))),
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
@@ -42,61 +46,79 @@ class confirmAndUpload extends StatelessWidget {
         children: <Widget>[
           Container(
             child: Padding(
-              padding: const EdgeInsets.all(1.0),
+              padding: const EdgeInsets.all(0.0),
               child: Center(
                 child: Image.file(File(imageData.imagePath)),
               ),
             ),
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: CupertinoColors.white,
               border: Border.all(
                 color: Colors.grey,
-                width: 3.0,
+                width: 0.00,
               ),
             ),
           ),
           Positioned(
             bottom: 30,
             right: 30,
-            child: IconButton(
-              icon: const Icon(Icons.cancel_outlined),
-              iconSize: 40,
-              color: Colors.blue,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        CameraApp(),
-                    transitionsBuilder:
-                        (context, animation1, animation2, child) =>
-                            FadeTransition(opacity: animation1, child: child),
-                    transitionDuration: Duration(milliseconds: 300),
-                  ),
-                );
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                // borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.deepOrange[200], width: 3),
+                shape: BoxShape.circle,
+                color: Colors.black,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.check_circle),
+                iconSize: 40,
+                color: Colors.deepOrange[100],
+                padding: EdgeInsets.all(.01),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          Uploader(imageData: imageData),
+                      transitionsBuilder:
+                          (context, animation1, animation2, child) =>
+                              FadeTransition(opacity: animation1, child: child),
+                      transitionDuration: Duration(milliseconds: 300),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           Positioned(
             bottom: 30,
             left: 30,
-            child: IconButton(
-              icon: const Icon(Icons.check_circle_outlined),
-              iconSize: 40,
-              color: Colors.blue,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation1, animation2) =>
-                        Uploader(imageData: imageData),
-                    transitionsBuilder:
-                        (context, animation1, animation2, child) =>
-                            FadeTransition(opacity: animation1, child: child),
-                    transitionDuration: Duration(milliseconds: 300),
-                  ),
-                );
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                // borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.deepOrange[200], width: 3),
+                shape: BoxShape.circle,
+                color: Colors.white60,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.cancel),
+                iconSize: 40,
+                color: Colors.deepOrange[200],
+                padding: EdgeInsets.all(.01),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation1, animation2) =>
+                          CameraApp(),
+                      transitionsBuilder:
+                          (context, animation1, animation2, child) =>
+                              FadeTransition(opacity: animation1, child: child),
+                      transitionDuration: Duration(milliseconds: 300),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
 
@@ -129,17 +151,101 @@ class _UploaderState extends State<Uploader> {
     final filePath = 'images/${DateTime.now()}.png';
 
     setState(() {
-      _uploadTask = _storage.ref().child(filePath).putFile(File(widget.imageData.imagePath));
+      _uploadTask = _storage
+          .ref()
+          .child(filePath)
+          .putFile(File(widget.imageData.imagePath));
     });
-
   }
-    Future<void>  _uploadImageData() async {
-      StorageTaskSnapshot taskSnapshot = await _uploadTask.onComplete;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-      await Firestore.instance.collection("images").add({"url": downloadUrl, "name": widget.imageData.imagePath, "timeTaken": widget.imageData.timeTaken, "compassData": widget.imageData.compassData
-      , "imagePosition": widget.imageData.imagePosition});
-    }
 
+  Future<void> _uploadImageData() async {
+    StorageTaskSnapshot taskSnapshot = await _uploadTask.onComplete;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+    await Firestore.instance.collection("images").add({
+      "url": downloadUrl,
+      "name": widget.imageData.imagePath,
+      "timeTaken": widget.imageData.timeTaken,
+      "compassData": widget.imageData.compassData,
+      "imagePosition": widget.imageData.imagePosition
+    });
+  }
+
+  Widget _navigation(){
+    return Column(
+      children: [
+        Stack(
+      children: <Widget>[
+        Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          height: 80,
+          child: RaisedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      MapRender(),
+                  transitionsBuilder: (context, animation1,
+                      animation2,
+                      child) =>
+                      FadeTransition(
+                          opacity: animation1, child: child),
+                  transitionDuration: Duration(milliseconds: 300),
+                ),
+              );
+            },
+            color: Color(Global.selectedIconColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              //side: BorderSide(color: Colors.grey),
+            ),
+            label: Text(
+              "View Image on Map",
+              style:
+              TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            icon: Icon(Icons.map_outlined, size: 10),
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.fromLTRB(0, 50, 0, 0),
+          height: 60,
+          child: RaisedButton.icon(
+            onPressed: () {
+              int _currentIndex = 1;
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) =>
+                      ViewMapOrReport(),
+                  transitionsBuilder: (context, animation1,
+                      animation2,
+                      child) =>
+                      FadeTransition(
+                          opacity: animation1, child: child),
+                  transitionDuration: Duration(milliseconds: 300),
+                ),
+              );
+            },
+            color: Color(Global.selectedIconColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              //side: BorderSide(color: Colors.grey),
+            ),
+            label: Text(
+              "Home",
+              style:
+              TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            icon: Icon(Icons.home, size: 10),
+          ),
+        ),
+      ],
+    ),],
+    );
+  }
 
   Widget getUploadState() {
     if (_uploadTask != null) {
@@ -161,7 +267,19 @@ class _UploaderState extends State<Uploader> {
             return Column(
               children: [
                 if (_uploadTask.isComplete)
-                  Text('Image Uploaded'),
+            Stack(
+                children: <Widget>[
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(0.25),
+                      child: Text('\nImage Upload Successful',
+                          style: TextStyle(color: Color(Global.selectedIconColor), fontSize: 10)),
+                    ),
+                  ),
+
+                  ],),
+                _navigation(),
+
                 if (_uploadTask.isPaused)
                   FlatButton(
                     child: Icon(Icons.play_arrow),
@@ -175,18 +293,37 @@ class _UploaderState extends State<Uploader> {
                   ),
 
                 // Progress bar
-                LinearProgressIndicator(value: progressPercent),
-                Text('${(progressPercent * 100).toStringAsFixed(2)} % '),
+                Stack(
+                  children:  <Widget>[
+                Container(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Center(
+                      child: LinearProgressIndicator(backgroundColor: Color(Global.iconColor), value: progressPercent),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Center(
+                      child:  Text('${(progressPercent * 100).toStringAsFixed(2)} % ', style: TextStyle(color: Color(Global.selectedIconColor)),),
+                    ),
+                  ),
+                ),
+          ],),
               ],
             );
           });
     } else {
       // Allows user to decide when to start the upload
       return FlatButton.icon(
-        label: Text('Upload'),
-        icon: Icon(Icons.cloud_upload),
+        textColor: Color(Global.selectedIconColor),
+        label: Text('Upload Image', style: TextStyle(fontWeight: FontWeight.bold, color: Color(Global.selectedIconColor))),
+        icon: Icon(Icons.arrow_upward_rounded),
         onPressed: _startUpload,
-
       );
     }
   }
@@ -197,39 +334,51 @@ class _UploaderState extends State<Uploader> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Upload Image"),
+        title: Text("Upload Image", style: TextStyle(color: Color(Global.selectedIconColor))),
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
       ),
-      body: SafeArea(
-    child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Center(
-                  child: Image.file(File(widget.imageData.imagePath)),
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 3.0,
-                ),
+      body: Stack(
+        children: <Widget>[
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: Center(
+                child: Image.file(File(widget.imageData.imagePath)),
               ),
             ),
-            Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            right: 15,
+            left: 15,
+            child: Container(
+              padding: const EdgeInsets.all(.25),
+              decoration: BoxDecoration(
+                color: Colors.deepOrange[100],
+                //shape: BoxShape.rectangle,
+               // borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: Color(Global.selectedIconColor),
+                  width: 3,
+                ),
+              ),
               child: Center(
                 child: getUploadState(),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+          // _compassDataWidget(),
+          // _captureControlRowWidget(),
+        ],
       ),
     );
   }
 }
-
