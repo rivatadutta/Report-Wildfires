@@ -91,7 +91,7 @@ class _MapRenderState extends State<MapRender> {
       markerId++;
     }
 
-   /* double imageHeading1;
+    double imageHeading1;
     double imageHeading2;
 
     Tuple2 a;
@@ -138,14 +138,16 @@ class _MapRenderState extends State<MapRender> {
           fireMarkers2.item1,
           fireMarkers2.item2,
         );
-        //if intersection point distances are > than .5 miles, then it is unique intersection point
-        if (_distanceInMeters > 805) {
+        //if intersection point distances are > than 3 miles, then it is unique intersection point
+        if (_distanceInMeters > 3000) {
           if (!uniqueIntersectionMarkers.contains(fireMarkers1)) {
             uniqueIntersectionMarkers.add(fireMarkers1);
           }
           if (!uniqueIntersectionMarkers.contains(fireMarkers2)) {
             uniqueIntersectionMarkers.add(fireMarkers2);
           }
+        }
+        else{
         }
       }
     }
@@ -164,7 +166,7 @@ class _MapRenderState extends State<MapRender> {
               BitmapDescriptor.hueRed)),
       );
         markerId++;
-    }*/
+    }
 
     return Future.value(markersList);
   }
