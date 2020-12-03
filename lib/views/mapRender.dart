@@ -42,11 +42,13 @@ class _MapRenderState extends State<MapRender> {
 
 
   List<Marker> markers = [];
+  List<Polyline> polylines = [];
   List<Tuple2<double, double>> intersectionList = [];
   List<Tuple2<double, double>> uniqueIntersectionMarkers = [];
 
-  Future<List<Marker>> _createMarkersForUserImagesandFires() async {
+  Future<Tuple2<List<Marker>,List<Polyline>>> _createMarkersForUserImagesandFires() async {
     List<Marker> markersList = [];
+    List<Polyline> polylineList = [];
     List<DocumentSnapshot> imageDocumentsList = [];
     int markerId = 0;
 
@@ -83,11 +85,26 @@ class _MapRenderState extends State<MapRender> {
           ],
 
           infoWindow: InfoWindow(
-            title: imageDocRef.data['timeTaken'].toString(),
-            snippet: null,),
+            title: "Info",
+            snippet: "Date Taken: " + imageDocRef.data['timeTaken'].toDate().toString()
+                      + " Heading:" + imageDocRef.data['compassData'].round().toString(),
+          ),
           icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueYellow)),
       );
+
+      polylineList.add(
+          Polyline(
+          polylineId: PolylineId(markerId.toString()),
+          visible: true,
+          color: Colors.blueAccent,
+          width: 2,
+          points: [LatLng(imageDocRef.data['imagePosition'].latitude,imageDocRef.data['imagePosition'].longitude),
+                    LatLng(imageDocRef.data['imagePosition'].latitude + cos(imageDocRef.data['compassData']*(pi/180))/20,
+                        imageDocRef.data['imagePosition'].longitude + sin(imageDocRef.data['compassData']*(pi/180))/20)]
+        )
+      );
+
       markerId++;
     }
 
@@ -100,77 +117,77 @@ class _MapRenderState extends State<MapRender> {
 
     //iterat
     //call intersection
-    for (DocumentSnapshot image1 in imageDocumentsList) {
-      DocumentReference imageReference1 = Firestore.instance.collection(
-          "images").document(image1.documentID);
-      DocumentSnapshot imageDocRef1 = await imageReference1.get();
-      for (DocumentSnapshot image2 in imageDocumentsList) {
-        DocumentReference imageReference2 = Firestore.instance.collection(
-            "images").document(image2.documentID);
-        DocumentSnapshot imageDocRef2 = await imageReference2.get();
-        //Don't look at the same points.
-        if (image1 == image2) {
-          continue;
-        }
-        else {
-          imageHeading1 = imageDocRef1.data['compassData'];
-          imageHeading2 = imageDocRef2.data['compassData'];
-          a = Tuple2<double, double>(
-              imageDocRef1.data['imagePosition'].latitude,
-              imageDocRef1.data['imagePosition'].longitude);
-          b = Tuple2<double, double>(
-              imageDocRef2.data['imagePosition'].latitude,
-              imageDocRef1.data['imagePosition'].longitude);
-          fireMarker = findIntersection(a, b, imageHeading1, imageHeading2);
-          intersectionList.add(
-              fireMarker); //list of all intersection`s between all images
-        }
-      }
-    }
+    // for (DocumentSnapshot image1 in imageDocumentsList) {
+    //   DocumentReference imageReference1 = Firestore.instance.collection(
+    //       "images").document(image1.documentID);
+    //   DocumentSnapshot imageDocRef1 = await imageReference1.get();
+    //   for (DocumentSnapshot image2 in imageDocumentsList) {
+    //     DocumentReference imageReference2 = Firestore.instance.collection(
+    //         "images").document(image2.documentID);
+    //     DocumentSnapshot imageDocRef2 = await imageReference2.get();
+    //     //Don't look at the same points.
+    //     if (image1 == image2) {
+    //       continue;
+    //     }
+    //     else {
+    //       imageHeading1 = imageDocRef1.data['compassData'];
+    //       imageHeading2 = imageDocRef2.data['compassData'];
+    //       a = Tuple2<double, double>(
+    //           imageDocRef1.data['imagePosition'].latitude,
+    //           imageDocRef1.data['imagePosition'].longitude);
+    //       b = Tuple2<double, double>(
+    //           imageDocRef2.data['imagePosition'].latitude,
+    //           imageDocRef1.data['imagePosition'].longitude);
+    //       fireMarker = findIntersection(a, b, imageHeading1, imageHeading2);
+    //       intersectionList.add(
+    //           fireMarker); //list of all intersection`s between all images
+    //     }
+    //   }
+    // }
+    //
+    // //Messing around with seeing intersections that are similar
+    // for (Tuple2 fireMarkers1 in intersectionList) {
+    //   for (Tuple2 fireMarkers2 in intersectionList) {
+    //     if (fireMarkers1 == fireMarkers2) {
+    //       continue;
+    //     }
+    //     //calculate distance between two intersection points
+    //     var _distanceInMeters = Geolocator.distanceBetween(
+    //       fireMarkers1.item1,
+    //       fireMarkers1.item2,
+    //       fireMarkers2.item1,
+    //       fireMarkers2.item2,
+    //     );
+    //     //if intersection point distances are > than 3 miles, then it is unique intersection point
+    //     if (_distanceInMeters > 200) {
+    //       if (!uniqueIntersectionMarkers.contains(fireMarkers1)) {
+    //         uniqueIntersectionMarkers.add(fireMarkers1);
+    //       }
+    //       if (!uniqueIntersectionMarkers.contains(fireMarkers2)) {
+    //         uniqueIntersectionMarkers.add(fireMarkers2);
+    //       }
+    //     }
+    //     // else {}
+    //   }
+    // }
+    //
+    // for (Tuple2<double, double> fireMarkers in uniqueIntersectionMarkers) {
+    //   markersList.add(Marker(
+    //       markerId: MarkerId(markerId.toString()),
+    //       position: LatLng(fireMarkers.item1, fireMarkers.item2),
+    //       onTap: () =>
+    //           _changeMap(LatLng(
+    //               fireMarkers.item1, fireMarkers.item2)),
+    //       infoWindow: InfoWindow(
+    //         title: "fire",
+    //         snippet: null,),
+    //       icon: BitmapDescriptor.defaultMarkerWithHue(
+    //           BitmapDescriptor.hueRed)),
+    //   );
+    //   markerId++;
+    // }
 
-    //Messing around with seeing intersections that are similar
-    for (Tuple2 fireMarkers1 in intersectionList) {
-      for (Tuple2 fireMarkers2 in intersectionList) {
-        if (fireMarkers1 == fireMarkers2) {
-          continue;
-        }
-        //calculate distance between two intersection points
-        var _distanceInMeters = Geolocator.distanceBetween(
-          fireMarkers1.item1,
-          fireMarkers1.item2,
-          fireMarkers2.item1,
-          fireMarkers2.item2,
-        );
-        //if intersection point distances are > than 3 miles, then it is unique intersection point
-        if (_distanceInMeters > 3000) {
-          if (!uniqueIntersectionMarkers.contains(fireMarkers1)) {
-            uniqueIntersectionMarkers.add(fireMarkers1);
-          }
-          if (!uniqueIntersectionMarkers.contains(fireMarkers2)) {
-            uniqueIntersectionMarkers.add(fireMarkers2);
-          }
-        }
-        else {}
-      }
-    }
-
-    for (Tuple2<double, double> fireMarkers in uniqueIntersectionMarkers) {
-      markersList.add(Marker(
-          markerId: MarkerId(markerId.toString()),
-          position: LatLng(fireMarkers.item1, fireMarkers.item2),
-          onTap: () =>
-              _changeMap(LatLng(
-                  fireMarkers.item1, fireMarkers.item2)),
-          infoWindow: InfoWindow(
-            title: "fire",
-            snippet: null,),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed)),
-      );
-      markerId++;
-    }
-
-    return Future.value(markersList);
+    return Future.value(Tuple2(markersList, polylineList));
   }
 
 
@@ -179,16 +196,17 @@ class _MapRenderState extends State<MapRender> {
   void initState() {
     super.initState();
     _getUserLocation();
-    _createMarkersForUserImagesandFires().then((List<Marker> imageMarkers){
+    _createMarkersForUserImagesandFires().then((Tuple2<List<Marker>,List<Polyline>> markersAndLines){
       setState((){
-        markers = imageMarkers;
+        markers = markersAndLines.item1;
+        polylines = markersAndLines.item2;
       });
     });
   }
 
 
   Tuple2<double,double> findIntersection(Tuple2<double,double> location1, Tuple2<double,double> location2, double heading1, double heading2) {
-    // We basically perform Gaussian elimination on a 2x2 matrix to solve for variables.
+    // We basically perform Gaussian elimination on a 2x3 matrix to solve for variables.
     // Then plug variables into parameterization of eqs.
     //
     // Find where vectors are equal
@@ -370,6 +388,7 @@ class _MapRenderState extends State<MapRender> {
                   mapType: _currentMapType,
                   onMapCreated: _onMapCreated,
                   markers: markers.toSet(),
+                  polylines: polylines.toSet(),
                   initialCameraPosition: CameraPosition(
                     target: _initialPosition,
                     zoom: 14.0,
@@ -379,34 +398,6 @@ class _MapRenderState extends State<MapRender> {
                   myLocationEnabled: true,
                   compassEnabled: true,
                   myLocationButtonEnabled: false,
-                ),
-                Positioned(
-                  top: 30.0,
-                  right: 15.0,
-                  left: 15.0,
-                  child: Container(
-                    height: 50.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white),
-                    child: TextField(
-                      decoration: InputDecoration(
-                          hintText: 'Enter Address',
-                          border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.only(left: 15.0, top: 15.0),
-                          suffixIcon: IconButton(
-                              icon: Icon(Icons.search),
-                              onPressed: searchandNavigate,
-                              iconSize: 30.0)),
-                      onChanged: (val) {
-                        setState(() {
-                          searchAddr = val;
-                        });
-                      },
-                    ),
-                  ),
                 ),
                 Align(
                   alignment: Alignment.topRight,
@@ -425,22 +416,6 @@ class _MapRenderState extends State<MapRender> {
                 )
               ]),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => CameraApp(),
-              transitionsBuilder: (context, animation1, animation2, child) =>
-                  FadeTransition(opacity: animation1, child: child),
-              transitionDuration: Duration(milliseconds: 300),
-            ),
-          );
-        },
-        backgroundColor: Colors.deepOrange,
-        label: Text('Upload Image'),
-        icon: Icon(Icons.add_a_photo_sharp),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
