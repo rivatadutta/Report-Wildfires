@@ -75,30 +75,29 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       }
     }
   }
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 2;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text("Camera"),
+      /*appBar: AppBar(
+        title: Text("Camera", style: TextStyle(fontSize:20, fontWeight: FontWeight.w300, letterSpacing: .5, color: Color(Global.selectedIconColor))),
         elevation: 0.0,
         backgroundColor: Color(Global.backgroundColor),
-      ),
+      ),*/
       // body: Center(
       //   child: _buildCompass(),
       // ),
       body: Stack(
         children: <Widget>[
-          Container(
+           Container(
             child: Padding(
               padding: const EdgeInsets.all(0.0),
               child: Center(
-                child: _cameraPreviewWidget(),
+                  child: _cameraPreviewWidget(),
+                ),
               ),
-            ),
             decoration: BoxDecoration(
               color: Color(Global.backgroundColor),
               border: Border.all(
@@ -108,14 +107,14 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             ),
           ),
           Positioned(
-            bottom: 30.0,
+            bottom: 60,
             right: 15.0,
             left: 15.0,
             child: Container(
               height: 60,
               child: IconButton(
                 icon: const Icon(Icons.camera_rounded),
-                iconSize: 70,
+                iconSize: 80,
                 splashColor: Colors.black12,
                 highlightColor: Colors.orangeAccent[200],
                 color: Colors.white,
@@ -128,16 +127,22 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             ),
           ),
           Positioned(
-            top: 40.0,
+            top: 65,
             right: 8.0,
             child: Container(
-              height: 50.0,
+              height: 55.0,
               child: Align(
                 alignment: Alignment.topLeft,
                 child: _buildCompass(),
               )
             ),
           ),
+          Align(
+            alignment: Alignment.center,
+    child: Container(
+        child: Image.asset('assets/images/imageGuide.png'),
+    )
+    ),
           // _compassDataWidget(),
         ],
       ),
@@ -174,6 +179,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
+    final size = MediaQuery.of(context).size;
+    final deviceRatio = size.width / size.height;
     if (controller == null || !controller.value.isInitialized) {
       return const Text(
         'Tap a camera',
@@ -184,11 +191,13 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         ),
       );
     } else {
-      return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: CameraPreview(controller),
-      );
-    }
+      return Transform.scale(
+          scale: controller.value.aspectRatio/deviceRatio,
+          child: AspectRatio(
+          aspectRatio: controller.value.aspectRatio,
+          child: CameraPreview(controller),),
+    );
+  }
   }
 
   Widget _buildCompass() {
@@ -235,6 +244,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       },
     );
   }
+
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 

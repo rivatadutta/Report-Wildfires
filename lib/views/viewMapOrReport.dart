@@ -63,9 +63,11 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
 
   @override
   Widget build(BuildContext context) {
+    var fontWeight;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home"),
+
+        title: Text("Home",style: TextStyle(fontSize:22, fontWeight: FontWeight.w300, letterSpacing: .5, color: Colors.redAccent[700])),
         backgroundColor: Color(Global.backgroundColor),
         elevation: 0.0,
       ),

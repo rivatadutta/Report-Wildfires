@@ -5,7 +5,9 @@ import 'package:fire_project/globalData/place_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:tuple/tuple.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,7 +26,7 @@ class PinInformation {
     this.image,
     this.location,
     this.timeTaken,
-});}
+  });}
 
 class MapRender extends StatefulWidget {
   @override
@@ -77,6 +79,12 @@ class _MapRenderState extends State<MapRender> {
       DocumentSnapshot imageDocRef = await imageReference.get();
 
       String imageUrl = imageDocRef.data["url"];
+      DateTime dateTimeTaken = imageDocRef.data["timeTaken"].toDate();
+      List<Placemark> placemarks = await placemarkFromCoordinates(imageDocRef.data['imagePosition'].latitude,
+          imageDocRef.data['imagePosition'].longitude);
+      Placemark placeMark  =  placemarks[0];
+
+
 
       markersList.add(Marker(
           markerId: MarkerId(markerId.toString()),
@@ -92,9 +100,86 @@ class _MapRenderState extends State<MapRender> {
           ],
 
           infoWindow: InfoWindow(
-            title: "Info",
-            snippet: "Date Taken: " + imageDocRef.data['timeTaken'].toDate().toString()
-                      + " Heading:" + imageDocRef.data['compassData'].round().toString(),
+            title: "Reported Fire",
+            snippet: "Tap for Info",
+            onTap: (){
+              showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                return Container(
+                  decoration: BoxDecoration(
+                     color:  Color.fromRGBO(255, 217, 179, .4),
+                   // gradient: LinearGradient(colors: [Color(Global.backgroundColor), Color.fromRGBO(255, 217, 179, .4)],begin: Alignment.topCenter,
+                     // end: Alignment.bottomCenter,),
+                    //backgroundBlendMode: BlendMode.
+                    border: Border(top: BorderSide(width: .7, color: Color(Global.selectedIconColor))),
+                  ),
+                  height: 400,
+                  //color: Color.fromRGBO(255, 217, 179, .4),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row( children: [
+                          Padding(padding: const EdgeInsets.all(10.0)),
+                          Container(
+                            width: 160,
+                            height: 320,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(imageUrl),
+                              ),),),
+                          Padding(padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 0.0)),
+                          Center(
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(1.0, 10.0, 2.0, 10.0),
+                              width: 160,
+                              decoration:
+                              BoxDecoration(boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  blurRadius: 4.0,
+                                  offset: Offset.zero,
+                                  color: Colors.white.withOpacity(0.4),
+                                ),],),
+                              //child: Padding(padding: const EdgeInsets.all(0.25),
+                              child: RichText(
+                                textAlign: TextAlign.left,
+                                text: TextSpan(text: "\nTaken at\n", style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13,letterSpacing: 1.2,color: Colors.brown[900]),
+                                  children: <TextSpan>[
+                                    TextSpan(text:formatDate(dateTimeTaken, [HH, ':', nn]),
+                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 20,letterSpacing: 1.2,color: Color(Global.selectedIconColor))),
+                                    TextSpan(text: "\non "),
+                                    TextSpan(text:formatDate(dateTimeTaken, [dd, '/', mm, '/', yyyy]),
+                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 20,letterSpacing: 1.2,color: Color(Global.selectedIconColor))),
+                            TextSpan(text: "\n\nCompass Reading: "),
+                                    TextSpan(text: imageDocRef.data['compassData'].round().toString() + "°", style: TextStyle(
+                                        fontWeight: FontWeight.w400, fontSize: 19,letterSpacing: 1.2,color: Colors.brown[900])),
+                                    TextSpan(text: "\n\nCoordinates: \n"),
+                                    TextSpan(text: imageDocRef.data['imagePosition'].latitude.toString() +"\n" + imageDocRef.data['imagePosition'].longitude.toString(),
+                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 19,letterSpacing: 1.2,color: Colors.brown[900])),
+                                    TextSpan(text: "\n\n"+ placeMark.locality.toString() +"," + placeMark.country.toString()+"," +
+                                        placeMark.postalCode.toString()),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        ),
+                IconButton(
+                icon: const Icon(Icons.expand_more),
+                iconSize: 40,
+                color: Color(Global.selectedIconColor),
+                padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                onPressed: () => Navigator.pop(context),
+                ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              );
+            },
           ),
           icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueYellow)),
@@ -102,15 +187,15 @@ class _MapRenderState extends State<MapRender> {
 
       polylineList.add(
           Polyline(
-          polylineId: PolylineId(markerId.toString()),
-          visible: true,
-          color: Colors.blueAccent,
-          width: 2,
-          patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
-          points: [LatLng(imageDocRef.data['imagePosition'].latitude,imageDocRef.data['imagePosition'].longitude),
-                    LatLng(imageDocRef.data['imagePosition'].latitude + cos(imageDocRef.data['compassData']*(pi/180))/20,
-                        imageDocRef.data['imagePosition'].longitude + sin(imageDocRef.data['compassData']*(pi/180))/20)]
-        )
+              polylineId: PolylineId(markerId.toString()),
+              visible: true,
+              color: Colors.blueAccent,
+              width: 2,
+              patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
+              points: [LatLng(imageDocRef.data['imagePosition'].latitude,imageDocRef.data['imagePosition'].longitude),
+                LatLng(imageDocRef.data['imagePosition'].latitude + cos(imageDocRef.data['compassData']*(pi/180))/20,
+                    imageDocRef.data['imagePosition'].longitude + sin(imageDocRef.data['compassData']*(pi/180))/20)]
+          )
       );
 
       markerId++;
@@ -278,7 +363,7 @@ class _MapRenderState extends State<MapRender> {
         desiredAccuracy: LocationAccuracy.high);
     print(position);
     List<Placemark> placemark =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
+    await placemarkFromCoordinates(position.latitude, position.longitude);
     setState(() {
       _initialPosition = LatLng(position.latitude, position.longitude);
       print('${placemark[0].name}');
@@ -317,7 +402,7 @@ class _MapRenderState extends State<MapRender> {
 
 
   _onAddMarkerButtonPressed() {
-   // _findIntersectionMarkers();
+    // _findIntersectionMarkers();
     // Example of findIntersection and average
     const a = const Tuple2<double,double>(-122.050316, 36.993127);
     const b = const Tuple2<double,double>(-122.053105, 36.970124);
@@ -358,17 +443,17 @@ class _MapRenderState extends State<MapRender> {
         Positioned(
           bottom:50,
           child: Container(
-              width:100,
-              height: 100,
-              decoration: BoxDecoration(
+            width:100,
+            height: 100,
+            decoration: BoxDecoration(
                 image: DecorationImage(
                     fit: BoxFit.contain,
                     image: NetworkImage(imageUrl)
                   //NetworkImage(imageUrl, )),
-              )
-             // child: Text("${print}")),
+                )
+              // child: Text("${print}")),
             ),
-        ),
+          ),
         ),
       ],
     );
@@ -383,106 +468,106 @@ class _MapRenderState extends State<MapRender> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Map"),
-        elevation: 0.0,
+      /*appBar: AppBar(
+        title: Text("Map",style: TextStyle(fontSize:20, fontWeight: FontWeight.w300, letterSpacing: .5, color: Colors.redAccent[700])),
+        elevation: 2.0,
         backgroundColor: Color(Global.backgroundColor),
-      ),
+      ),*/
       body: _initialPosition == null
           ? Container(
-              child: Center(
-                child: Text(
-                  'loading map...',
-                  style: TextStyle(
-                      fontFamily: 'Avenir-Medium', color: Colors.black),
-                ),
-              ),
-            )
+        child: Center(
+          child: Text(
+            'loading map...',
+            style: TextStyle(
+                fontFamily: 'Avenir-Medium', color: Colors.black),
+          ),
+        ),
+      )
           : Container(
-              child: Stack
-                (children: <Widget>[
-                GoogleMap(
-                  mapType: _currentMapType,
-                  onMapCreated: _onMapCreated,
-                  markers: markers.toSet(),
-                  polylines: polylines.toSet(),
-                  initialCameraPosition: CameraPosition(
-                    target: _initialPosition,
-                    zoom: 14.0,
-                  ),
-                  zoomGesturesEnabled: true,
-                  onCameraMove: _onCameraMove,
-                  myLocationEnabled: true,
-                  compassEnabled: true,
-                  myLocationButtonEnabled: false,
-                ),
-                Positioned(
-                  top: 30.0,
-                  right: 15.0,
-                  left: 15.0,
-                  child: Container(
-                    height: 50.0,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white),
-                    child: TextField(
-                      controller: addressSearchcontroller,
-                      readOnly: true,
-                      onTap:() async {
-                        final sessionToken = Uuid().v4();
-                        final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
-                    if (result != null)
-                    {
+        child: Stack
+          (children: <Widget>[
+          GoogleMap(
+            mapType: _currentMapType,
+            onMapCreated: _onMapCreated,
+            markers: markers.toSet(),
+            polylines: polylines.toSet(),
+            initialCameraPosition: CameraPosition(
+              target: _initialPosition,
+              zoom: 14.0,
+            ),
+            zoomGesturesEnabled: true,
+            onCameraMove: _onCameraMove,
+            myLocationEnabled: true,
+            compassEnabled: true,
+            myLocationButtonEnabled: false,
+          ),
+          Positioned(
+            top: 30.0,
+            right: 15.0,
+            left: 15.0,
+            child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white),
+              child: TextField(
+                controller: addressSearchcontroller,
+                readOnly: true,
+                onTap:() async {
+                  final sessionToken = Uuid().v4();
+                  final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
+                  if (result != null)
+                  {
                     setState(() {
-                    addressSearchcontroller.text = result.description;
-                   /* _streetNumber = placeDeatils.streetNumber;
+                      addressSearchcontroller.text = result.description;
+                      /* _streetNumber = placeDeatils.streetNumber;
                     _street = placeDeatils.street;
                     _city = placeDeatils.city;
                     _zipCode= placeDeatils.zipCode;*/
 
                     });}
-                    },
-                      decoration: InputDecoration(
-                          hintText: 'Search Location',
-                          border: InputBorder.none,
-                          contentPadding:
-                          EdgeInsets.only(left: 15.0, top: 15.0),
-                          suffixIcon: IconButton(
-                              icon: Icon(Icons.search),
-                              onPressed:searchandNavigate,
-                              iconSize: 30.0)),
-                      onChanged: (val) {
-                        setState(() {
-                          //addressSearchcontroller.text = result.description;
-                          searchAddr = val;
-                        });
-                      },
-                    ),
-                   // Text('Stret Number': $_streetNumber),
-                    //Text('City': $_city),
-                    //Text('Stret Number': $_streetNumber),
-                    //Text('Stret Number': $_streetNumber),
+                },
+                decoration: InputDecoration(
+                    hintText: 'Search Location',
+                    border: InputBorder.none,
+                    contentPadding:
+                    EdgeInsets.only(left: 15.0, top: 15.0),
+                    suffixIcon: IconButton(
+                        icon: Icon(Icons.search, color: Color(Global.selectedIconColor)),
+                        onPressed:searchandNavigate,
+                        iconSize: 30.0)),
+                onChanged: (val) {
+                  setState(() {
+                    //addressSearchcontroller.text = result.description;
+                    searchAddr = val;
+                  });
+                },
+              ),
+              // Text('Stret Number': $_streetNumber),
+              //Text('City': $_city),
+              //Text('Stret Number': $_streetNumber),
+              //Text('Stret Number': $_streetNumber),
 
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 80.0, 0.0, 0.0),
-                      child: Column(
-                        children: <Widget>[
-                          mapButton(
-                              _onAddMarkerButtonPressed,
-                              Icon(Icons.add_location_alt_rounded),
-                              Colors.deepOrange),
-                          mapButton(_onMapTypeButtonPressed,
-                              Icon(Icons.collections), Colors.green),
-                        ],
-                      )),
-                )
-              ]),
             ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+                margin: EdgeInsets.fromLTRB(0.0, 80.0, 0.0, 0.0),
+                child: Column(
+                  children: <Widget>[
+                    mapButton(
+                        _onAddMarkerButtonPressed,
+                        Icon(Icons.add_location_alt_rounded),
+                        Colors.deepOrange),
+                    mapButton(_onMapTypeButtonPressed,
+                        Icon(Icons.collections), Colors.green),
+                  ],
+                )),
+          )
+        ]),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -504,7 +589,6 @@ class _MapRenderState extends State<MapRender> {
 
 /*
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
@@ -512,7 +596,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geocoder/geocoder.dart';
 import 'camera.dart';
-
 // //Below is a function that gets the users current location, or last known location.
 // //The function will return a Position variable
 // Future<Position> currentLocation() async {
@@ -534,25 +617,19 @@ import 'camera.dart';
 //     return position;
 //   }
 // }
-
 class MapRender extends StatefulWidget {
   @override
   _MapRenderState createState() => _MapRenderState();
 }
-
 class _MapRenderState extends State<MapRender> {
   String searchAddr;
   GoogleMapController mapController;
-
   Completer<GoogleMapController> _controller = Completer();
-
   // Creating a variable currPosition that will be used to store the users current position
   Position currPosition;
   LatLng currLocation;
-
   // // Initializing center of map
   // static LatLng _center;
-
   // //Function used to get users original position
   // Future<void> _getUserLocation() async {
   //   currPosition = await currentLocation();
@@ -560,18 +637,15 @@ class _MapRenderState extends State<MapRender> {
   //   await FirebaseFunctions.pushUserLocation(
   //       currPosition.latitude, currPosition.longitude);
   // }
-
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
-
   static final CameraPosition _kLake = CameraPosition(
       bearing: 192.8334901395799,
       target: LatLng(37.43296265331129, -122.08832357078792),
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
-
   int _currentIndex = 1;
   @override
   Widget build(BuildContext context) {
@@ -668,7 +742,6 @@ class _MapRenderState extends State<MapRender> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
-
   Future<void> searchandNavigate() async {
     print(Global.userAddress);
     List<Location> location = await locationFromAddress(searchAddr);
@@ -676,7 +749,6 @@ class _MapRenderState extends State<MapRender> {
         target: LatLng(location[0].latitude, location[1].longitude),
         zoom: 10.0)));
   }
-
   void onMapCreated(controller) {
     setState(() {
       mapController = controller;
