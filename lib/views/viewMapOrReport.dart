@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import '';
 import 'package:fire_project/loginPages/enterName.dart';
 import 'package:provider/provider.dart';
 

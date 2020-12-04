@@ -28,6 +28,7 @@ dependencies:
   image_picker:
   path_provider:
   path:
+  uuid: ^2.2.2
   google_maps_flutter: ^1.0.0 #API for Maps services
   flutter_google_places: ^0.2.6
   google_maps_webservice: ^0.0.18

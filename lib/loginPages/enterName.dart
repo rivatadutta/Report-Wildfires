@@ -97,7 +97,7 @@ class _EnterNameState extends State<EnterName> {
                 padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
                 child: Text('What is your preferred name?',
                     style:
-                        TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 38, fontWeight: FontWeight.w700, letterSpacing: .1)),
               ),
               Container(
                 padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
@@ -138,7 +138,7 @@ class _EnterNameState extends State<EnterName> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        child: Icon(Icons.arrow_forward_ios_rounded),
+        child: Icon(Icons.arrow_forward_ios_rounded, color: Color(Global.selectedIconColor)),
       ),
     );
   }

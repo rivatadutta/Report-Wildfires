@@ -1,3 +1,5 @@
+import 'package:fire_project/globalData/address_search.dart';
+import 'package:fire_project/globalData/place_service.dart';
 import 'package:fire_project/navbar/bottom_navbar_page.dart';
 import 'package:fire_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:uuid/uuid.dart';
 
 class EnterLocation extends StatefulWidget {
 
@@ -79,21 +82,42 @@ class _EnterLocationState extends State<EnterLocation> {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(30, 160, 30, 0),
-                  child: Text('And your location?',
-                      style:
-                          TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                ),
+              child: Container(
+              padding: EdgeInsets.fromLTRB(30, 150, 30, 0),
+                child: RichText(
+                    text: TextSpan(
+                      text: "And Your Location?",
+                      style:  TextStyle(color: Colors.black87,fontSize: 38, fontWeight: FontWeight.w700, letterSpacing: .1),
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: "\nThat's the only Information we need from you!", style: TextStyle(fontWeight: FontWeight.w400, fontSize: 13, letterSpacing: 1.2, color:Colors.black45)),
+
+                      ],
+                    ),
+                  ),
+              ),
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
+                padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
                 child: Form(
                   key: formKey,
                   child: TextFormField(
-                    // onTap: () {
-                    // userAddress = _getCurrentLocation();
-                    // },
+                    controller: address1Controller,
+                    readOnly: true,
+                    onTap:() async {
+                      final sessionToken = Uuid().v4();
+                      final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
+                      if (result != null)
+                      {
+                        setState(() {
+                          address1Controller.text = result.description;
+                          /* _streetNumber = placeDeatils.streetNumber;
+                    _street = placeDeatils.street;
+                    _city = placeDeatils.city;
+                    _zipCode= placeDeatils.zipCode;*/
+
+                        });}
+                    },
                     style: TextStyle(fontSize: 25),
                     validator: (val) {
                       if (val.isEmpty) {
@@ -101,7 +125,7 @@ class _EnterLocationState extends State<EnterLocation> {
                       }
                       return null;
                     },
-                    controller: address1Controller,
+                    //controller: address1Controller,
                     decoration: InputDecoration(
                       hintText: "Enter address:",
                       enabledBorder: UnderlineInputBorder(
@@ -126,7 +150,7 @@ class _EnterLocationState extends State<EnterLocation> {
                   },
                   child: Text('Use current location',
                       style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          TextStyle(fontSize: 24, color: Color(Global.selectedIconColor), fontWeight: FontWeight.w600, letterSpacing: .65,)),
                 ),
               ),
             ],
@@ -141,7 +165,7 @@ class _EnterLocationState extends State<EnterLocation> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        child: Icon(Icons.arrow_forward_ios_rounded),
+        child: Icon(Icons.arrow_forward_ios_rounded, color: Color(Global.selectedIconColor)),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fire_project/globalData/place_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:tuple/tuple.dart';
@@ -12,6 +13,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter/cupertino.dart';
 import 'camera.dart';
+import 'package:fire_project/globalData/address_search.dart';
+import 'package:uuid/uuid.dart';
 
 class PinInformation {
   Image image;
@@ -31,8 +34,12 @@ class MapRender extends StatefulWidget {
 class _MapRenderState extends State<MapRender> {
 
   String searchAddr;
+  String _streetNumber = '';
+  String _street= '';
+  String _city = '';
+  String _zipCode = '';
   GoogleMapController mapController;
-
+  final addressSearchcontroller = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
 
   static LatLng _initialPosition;
@@ -99,6 +106,7 @@ class _MapRenderState extends State<MapRender> {
           visible: true,
           color: Colors.blueAccent,
           width: 2,
+          patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
           points: [LatLng(imageDocRef.data['imagePosition'].latitude,imageDocRef.data['imagePosition'].longitude),
                     LatLng(imageDocRef.data['imagePosition'].latitude + cos(imageDocRef.data['compassData']*(pi/180))/20,
                         imageDocRef.data['imagePosition'].longitude + sin(imageDocRef.data['compassData']*(pi/180))/20)]
@@ -277,6 +285,8 @@ class _MapRenderState extends State<MapRender> {
     });
   }
 
+
+
   Future<void> searchandNavigate() async {
     print(Global.userAddress);
     List<Location> location = await locationFromAddress(searchAddr);
@@ -363,6 +373,12 @@ class _MapRenderState extends State<MapRender> {
       ],
     );
   }
+  @override
+  void dispose(){
+    addressSearchcontroller.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -383,7 +399,8 @@ class _MapRenderState extends State<MapRender> {
               ),
             )
           : Container(
-              child: Stack(children: <Widget>[
+              child: Stack
+                (children: <Widget>[
                 GoogleMap(
                   mapType: _currentMapType,
                   onMapCreated: _onMapCreated,
@@ -398,6 +415,56 @@ class _MapRenderState extends State<MapRender> {
                   myLocationEnabled: true,
                   compassEnabled: true,
                   myLocationButtonEnabled: false,
+                ),
+                Positioned(
+                  top: 30.0,
+                  right: 15.0,
+                  left: 15.0,
+                  child: Container(
+                    height: 50.0,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Colors.white),
+                    child: TextField(
+                      controller: addressSearchcontroller,
+                      readOnly: true,
+                      onTap:() async {
+                        final sessionToken = Uuid().v4();
+                        final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
+                    if (result != null)
+                    {
+                    setState(() {
+                    addressSearchcontroller.text = result.description;
+                   /* _streetNumber = placeDeatils.streetNumber;
+                    _street = placeDeatils.street;
+                    _city = placeDeatils.city;
+                    _zipCode= placeDeatils.zipCode;*/
+
+                    });}
+                    },
+                      decoration: InputDecoration(
+                          hintText: 'Search Location',
+                          border: InputBorder.none,
+                          contentPadding:
+                          EdgeInsets.only(left: 15.0, top: 15.0),
+                          suffixIcon: IconButton(
+                              icon: Icon(Icons.search),
+                              onPressed:searchandNavigate,
+                              iconSize: 30.0)),
+                      onChanged: (val) {
+                        setState(() {
+                          //addressSearchcontroller.text = result.description;
+                          searchAddr = val;
+                        });
+                      },
+                    ),
+                   // Text('Stret Number': $_streetNumber),
+                    //Text('City': $_city),
+                    //Text('Stret Number': $_streetNumber),
+                    //Text('Stret Number': $_streetNumber),
+
+                  ),
                 ),
                 Align(
                   alignment: Alignment.topRight,
