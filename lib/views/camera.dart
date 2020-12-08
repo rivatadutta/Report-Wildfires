@@ -107,6 +107,23 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
             ),
           ),
           Positioned(
+            top: 65,
+            right: 8.0,
+            child: Container(
+              height: 55.0,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: _buildCompass(),
+              )
+            ),
+          ),
+            Align(
+            alignment: Alignment.center,
+            child: Container(
+                child: Image.asset('assets/images/imageGuide.png'),
+            )
+            ),
+          Positioned(
             bottom: 60,
             right: 15.0,
             left: 15.0,
@@ -119,30 +136,13 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
                 highlightColor: Colors.orangeAccent[200],
                 color: Colors.white,
                 onPressed: controller != null &&
-                        controller.value.isInitialized &&
-                        !controller.value.isRecordingVideo
+                    controller.value.isInitialized &&
+                    !controller.value.isRecordingVideo
                     ? onTakePictureButtonPressed
                     : null,
               ),
             ),
           ),
-          Positioned(
-            top: 65,
-            right: 8.0,
-            child: Container(
-              height: 55.0,
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: _buildCompass(),
-              )
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-    child: Container(
-        child: Image.asset('assets/images/imageGuide.png'),
-    )
-    ),
           // _compassDataWidget(),
         ],
       ),
