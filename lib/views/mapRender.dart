@@ -78,8 +78,9 @@ class _MapRenderState extends State<MapRender> {
       List<Placemark> placemarks = await placemarkFromCoordinates(imageDocRef.data['imagePosition'].latitude,
           imageDocRef.data['imagePosition'].longitude);
       Placemark placeMark  =  placemarks[0];
-      Tuple2<String, double> compassDirection = _findImageFacingDirection(
-          imageDocRef.data['compassData'].toDouble());
+      if ( imageDocRef.data['compassData'] !=null){
+        Tuple2<String, double> compassDirection = _findImageFacingDirection(
+            imageDocRef.data['compassData'].toDouble());
 
 
 
@@ -246,6 +247,7 @@ class _MapRenderState extends State<MapRender> {
           continue;
         }
         else {
+          if (imageDocRef1.data['compassData'] !=null && imageDocRef2.data['compassData'] !=null){
           imageHeading1 = imageDocRef1.data['compassData'].toDouble();
           imageHeading2 = imageDocRef2.data['compassData'].toDouble();
           a = Tuple2<double, double>(
@@ -260,6 +262,7 @@ class _MapRenderState extends State<MapRender> {
           if ((intersection.item1 != 0.0) && (intersection.item2 != 0.0)) {
             intersectionList.add(
                 intersection); //list of all intersection`s between all images
+          }
           }
         }
       }
@@ -300,13 +303,13 @@ class _MapRenderState extends State<MapRender> {
               _changeMap(LatLng(
                   fireMarkers.item1, fireMarkers.item2)),
           infoWindow: InfoWindow(
-            title: "fire",
+            title: "Fire",
             snippet: null,),
           icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueRed)),
       );
       markerId++;
-    }
+    }}
     return Future.value(Tuple2(markersList, polylineList));
   }
 
@@ -397,7 +400,7 @@ class _MapRenderState extends State<MapRender> {
     else if (compassData >= 157.5 && compassData <= 202.5) {
       return Tuple2<String, double>("South", compassData);
     }
-    else if (compassData >= 202.5 && compassData < 247.5) {
+    else if (compassData >= 202.5 && compassData <= 247.5) {
       return Tuple2<String, double>("SouthWest", compassData);
     }
     else if (compassData >= 247.5 && compassData <= 292.5) {
@@ -557,7 +560,7 @@ class _MapRenderState extends State<MapRender> {
             myLocationButtonEnabled: false,
           ),
           Positioned(
-            top: 30.0,
+            top: 50.0,
             right: 15.0,
             left: 15.0,
             child: Container(
@@ -609,17 +612,11 @@ class _MapRenderState extends State<MapRender> {
           Align(
             alignment: Alignment.topRight,
             child: Container(
-                margin: EdgeInsets.fromLTRB(0.0, 80.0, 0.0, 0.0),
-                child: Column(
-                  children: <Widget>[
-                    mapButton(
-                        _onAddMarkerButtonPressed,
-                        Icon(Icons.add_location_alt_rounded),
-                        Colors.deepOrange),
+                margin: EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 0.0),
+                child:
                     mapButton(_onMapTypeButtonPressed,
                         Icon(Icons.collections), Colors.green),
-                  ],
-                )),
+                ),
           )
         ]),
       ),

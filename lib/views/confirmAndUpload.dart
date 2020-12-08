@@ -183,10 +183,15 @@ class _UploaderState extends State<Uploader> {
               margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
               height: 80,
               child: RaisedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      //
+                    ),
+                  );
+                },
+                //  ApiCall();
+                   /* PageRouteBuilder(
                       pageBuilder: (context, animation1, animation2) =>
                           MapRender(),
                       transitionsBuilder: (context, animation1,
@@ -197,7 +202,7 @@ class _UploaderState extends State<Uploader> {
                       transitionDuration: Duration(milliseconds: 300),
                     ),
                   );
-                },
+                },*/
                 color: Color(Global.selectedIconColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
