@@ -530,101 +530,101 @@ class _MapRenderState extends State<MapRender> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
-        title: Text("Map",style: TextStyle(fontSize:20, fontWeight: FontWeight.w300, letterSpacing: .5, color: Colors.redAccent[700])),
-        elevation: 2.0,
-        backgroundColor: Color(Global.backgroundColor),
-      ),*/
-      body: _initialPosition == null
-          ? Container(
-        child: Center(
-          child: Text(
-            'loading map...',
-            style: TextStyle(
-                fontFamily: 'Avenir-Medium', color: Colors.black),
-          ),
-        ),
-      )
-          : Container(
-        child: Stack
-          (children: <Widget>[
-          GoogleMap(
-            mapType: _currentMapType,
-            onMapCreated: _onMapCreated,
-            markers: markers.toSet(),
-            polylines: polylines.toSet(),
-            initialCameraPosition: CameraPosition(
-              target: _initialPosition,
-              zoom: 14.0,
-            ),
-            zoomGesturesEnabled: true,
-            onCameraMove: _onCameraMove,
-            myLocationEnabled: true,
-            compassEnabled: true,
-            myLocationButtonEnabled: false,
-          ),
-          Positioned(
-            top: 50.0,
-            right: 15.0,
-            left: 15.0,
-            child: Container(
-              height: 50.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.white),
-              child: TextField(
-                controller: addressSearchcontroller,
-                readOnly: true,
-                onTap:() async {
-                  final sessionToken = Uuid().v4();
-                  final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
-                  if (result != null)
-                  {
-                    setState(() {
-                      addressSearchcontroller.text = result.description;
-                      /* _streetNumber = placeDeatils.streetNumber;
-                    _street = placeDeatils.street;
-                    _city = placeDeatils.city;
-                    _zipCode= placeDeatils.zipCode;*/
+    /*appBar: AppBar(
+            title: Text("Map",style: TextStyle(fontSize:20, fontWeight: FontWeight.w300, letterSpacing: .5, color: Colors.redAccent[700])),
+            elevation: 2.0,
+            backgroundColor: Color(Global.backgroundColor),
+          ),*/
+    body: _initialPosition == null
+    ? Container(
+    child: Center(
+    child: Text(
+    'loading map...',
+    style: TextStyle(
+    fontFamily: 'Avenir-Medium', color: Colors.black),
+    ),
+    ),
+    )
+        : Container(
+    child: Stack
+    (children: <Widget>[
+    GoogleMap(
+    mapType: _currentMapType,
+    onMapCreated: _onMapCreated,
+    markers: markers.toSet(),
+    polylines: polylines.toSet(),
+    initialCameraPosition: CameraPosition(
+    target: _initialPosition,
+    zoom: 14.0,
+    ),
+    zoomGesturesEnabled: true,
+    onCameraMove: _onCameraMove,
+    myLocationEnabled: true,
+    compassEnabled: true,
+    myLocationButtonEnabled: false,
+    ),
+    Positioned(
+    top: 50.0,
+    right: 15.0,
+    left: 15.0,
+    child: Container(
+    height: 50.0,
+    width: double.infinity,
+    decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(10.0),
+    color: Colors.white),
+    child: TextField(
+    controller: addressSearchcontroller,
+    readOnly: true,
+    onTap:() async {
+    final sessionToken = Uuid().v4();
+    final Suggestion result = await showSearch(context: context, delegate: AddressSearch(sessionToken),);
+    if (result != null)
+    {
+    setState(() {
+    addressSearchcontroller.text = result.description;
+    /* _streetNumber = placeDeatils.streetNumber;
+                        _street = placeDeatils.street;
+                        _city = placeDeatils.city;
+                        _zipCode= placeDeatils.zipCode;*/
 
-                    });}
-                },
-                decoration: InputDecoration(
-                    hintText: 'Search Location',
-                    border: InputBorder.none,
-                    contentPadding:
-                    EdgeInsets.only(left: 15.0, top: 15.0),
-                    suffixIcon: IconButton(
-                        icon: Icon(Icons.search, color: Color(Global.selectedIconColor)),
-                        onPressed:searchandNavigate,
-                        iconSize: 30.0)),
-                onChanged: (val) {
-                  setState(() {
-                    //addressSearchcontroller.text = result.description;
-                    searchAddr = val;
-                  });
-                },
-              ),
-              // Text('Stret Number': $_streetNumber),
-              //Text('City': $_city),
-              //Text('Stret Number': $_streetNumber),
-              //Text('Stret Number': $_streetNumber),
+    });}
+    },
+    decoration: InputDecoration(
+    hintText: 'Search Location',
+    border: InputBorder.none,
+    contentPadding:
+    EdgeInsets.only(left: 15.0, top: 15.0),
+    suffixIcon: IconButton(
+    icon: Icon(Icons.search, color: Color(Global.selectedIconColor)),
+    onPressed:searchandNavigate,
+    iconSize: 30.0)),
+    onChanged: (val) {
+    setState(() {
+    //addressSearchcontroller.text = result.description;
+    searchAddr = val;
+    });
+    },
+    ),
+    // Text('Stret Number': $_streetNumber),
+    //Text('City': $_city),
+    //Text('Stret Number': $_streetNumber),
+    //Text('Stret Number': $_streetNumber),
 
-            ),
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-                margin: EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 0.0),
-                child:
-                    mapButton(_onMapTypeButtonPressed,
-                        Icon(Icons.collections), Colors.green),
-                ),
-          )
-        ]),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    ),
+    ),
+    Align(
+    alignment: Alignment.topRight,
+    child: Container(
+    margin: EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 0.0),
+    child:
+    mapButton(_onMapTypeButtonPressed,
+    Icon(Icons.collections), Colors.green),
+    ),
+    )
+    ]),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
