@@ -186,9 +186,9 @@ class _UploaderState extends State<Uploader> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    PageRouteBuilder(
+                    new PageRouteBuilder(
                       pageBuilder: (context, animation1, animation2) =>
-                          MapRender(),
+                          new MapRender(),
                       transitionsBuilder: (context, animation1,
                           animation2,
                           child) =>

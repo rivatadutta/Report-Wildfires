@@ -78,152 +78,188 @@ class _MapRenderState extends State<MapRender> {
       List<Placemark> placemarks = await placemarkFromCoordinates(imageDocRef.data['imagePosition'].latitude,
           imageDocRef.data['imagePosition'].longitude);
       Placemark placeMark  =  placemarks[0];
-      if ( imageDocRef.data['compassData'] !=null){
+      if ( imageDocRef.data['compassData'] !=null) {
         Tuple2<String, double> compassDirection = _findImageFacingDirection(
             imageDocRef.data['compassData'].toDouble());
 
 
+        markersList.add(Marker(
+            markerId: MarkerId(markerId.toString()),
+            position: LatLng(imageDocRef.data['imagePosition'].latitude,
+                imageDocRef.data['imagePosition'].longitude),
+            onTap: () =>
+            [_changeMap(LatLng(
+                imageDocRef.data['imagePosition'].latitude,
+                imageDocRef.data['imagePosition'].longitude)),
+              _showMarkerImage(imageUrl),
+            ],
 
-      markersList.add(Marker(
-          markerId: MarkerId(markerId.toString()),
-          position: LatLng(imageDocRef.data['imagePosition'].latitude,
-              imageDocRef.data['imagePosition'].longitude),
-          onTap: () =>
-          [_changeMap(LatLng(
-              imageDocRef.data['imagePosition'].latitude,
-              imageDocRef.data['imagePosition'].longitude)),
-            _showMarkerImage(imageUrl),
-          ],
-
-          infoWindow: InfoWindow(
-            title: "Fire Reported at " +
-                formatDate(dateTimeTaken, [HH, ':', nn]) + " on " +
-                formatDate(dateTimeTaken, [dd, '/', mm]),
-            snippet: "Click for Details",
-            onTap: (){
-              showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color:  Color.fromRGBO(255, 217, 179, .4),
-                    // gradient: LinearGradient(colors: [Color(Global.backgroundColor), Color.fromRGBO(255, 217, 179, .4)],begin: Alignment.topCenter,
-                    // end: Alignment.bottomCenter,),
-                    //backgroundBlendMode: BlendMode.
-                    border: Border(top: BorderSide(width: .7, color: Color(Global.selectedIconColor))),
-                  ),
-                  height: 400,
-                  //color: Color.fromRGBO(255, 217, 179, .4),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Row( children: [
-                          Padding(padding: const EdgeInsets.all(10.0)),
-                          Container(
-                            width: 160,
-                            height: 320,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(imageUrl),
-                              ),),),
-                          Padding(padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 0.0)),
-                          Center(
-                            child: Container(
-                              padding: EdgeInsets.fromLTRB(1.0, 10.0, 2.0, 10.0),
+            infoWindow: InfoWindow(
+              title: "Fire Reported at " +
+                  formatDate(dateTimeTaken, [HH, ':', nn]) + " on " +
+                  formatDate(dateTimeTaken, [dd, '/', mm]),
+              snippet: "Click for Details",
+              onTap: () {
+                showModalBottomSheet<void>(
+                  context: context, builder: (BuildContext context) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(255, 217, 179, .4),
+                      // gradient: LinearGradient(colors: [Color(Global.backgroundColor), Color.fromRGBO(255, 217, 179, .4)],begin: Alignment.topCenter,
+                      // end: Alignment.bottomCenter,),
+                      //backgroundBlendMode: BlendMode.
+                      border: Border(top: BorderSide(
+                          width: .7, color: Color(Global.selectedIconColor))),
+                    ),
+                    height: 400,
+                    //color: Color.fromRGBO(255, 217, 179, .4),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Row(children: [
+                            Padding(padding: const EdgeInsets.all(10.0)),
+                            Container(
                               width: 160,
-                              decoration:
-                              BoxDecoration(boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  blurRadius: 4.0,
-                                  offset: Offset.zero,
-                                  color: Colors.white.withOpacity(0.4),
-                                ),],),
-                              //child: Padding(padding: const EdgeInsets.all(0.25),
-                              child: RichText(
-                                textAlign: TextAlign.left,
-                                text: TextSpan(text: "\nTaken at\n", style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13,letterSpacing: 1.2,color: Colors.brown[900]),
-                                  children: <TextSpan>[
-                                    TextSpan(text:formatDate(dateTimeTaken, [HH, ':', nn]),
-                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 20,letterSpacing: 1.2,color: Color(Global.selectedIconColor))),
-                                    TextSpan(text: "\non "),
-                                    TextSpan(text:formatDate(dateTimeTaken, [dd, '/', mm, '/', yyyy]),
-                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 20,letterSpacing: 1.2,color: Color(Global.selectedIconColor))),
-                                    TextSpan(text: "\n\nImage Direction: \n"),
-                                    TextSpan(text: compassDirection.item1,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 19,
-                                            letterSpacing: 1.2,
-                                            color:Color(Global.selectedIconColor))),
-                                    TextSpan(text: " Compass Reading of " +
-                                        compassDirection.item2.toStringAsFixed(
-                                            2).toString() +
-                                        "°"),
-                                    TextSpan(text: "\n\nImage Coordinates: \n"),
-                                    TextSpan(text: imageDocRef.data['imagePosition'].latitude.toStringAsFixed(5) +"\n" + imageDocRef.data['imagePosition'].longitude.toStringAsFixed(
-                                        5),
-                                        style: TextStyle(fontWeight: FontWeight.w400,fontSize: 19,letterSpacing: 1.2,color: Colors.brown[900])),
-                                    TextSpan(text: "\n\n"+ placeMark.locality.toString() +"," + placeMark.country.toString()+"," +
-                                        placeMark.postalCode.toString(), style: TextStyle(color:Color(Global.selectedIconColor))),
-                                  ],
+                              height: 320,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: NetworkImage(imageUrl),
+                                ),),),
+                            Padding(padding: const EdgeInsets.fromLTRB(
+                                4.0, 0.0, 4.0, 0.0)),
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.fromLTRB(
+                                    1.0, 10.0, 2.0, 10.0),
+                                width: 160,
+                                decoration:
+                                BoxDecoration(boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    blurRadius: 4.0,
+                                    offset: Offset.zero,
+                                    color: Colors.white.withOpacity(0.4),
+                                  ),
+                                ],),
+                                //child: Padding(padding: const EdgeInsets.all(0.25),
+                                child: RichText(
+                                  textAlign: TextAlign.left,
+                                  text: TextSpan(text: "\nTaken at\n",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                        letterSpacing: 1.2,
+                                        color: Colors.brown[900]),
+                                    children: <TextSpan>[
+                                      TextSpan(text: formatDate(
+                                          dateTimeTaken, [HH, ':', nn]),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 20,
+                                              letterSpacing: 1.2,
+                                              color: Color(
+                                                  Global.selectedIconColor))),
+                                      TextSpan(text: "\non "),
+                                      TextSpan(text: formatDate(dateTimeTaken,
+                                          [dd, '/', mm, '/', yyyy]),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 20,
+                                              letterSpacing: 1.2,
+                                              color: Color(
+                                                  Global.selectedIconColor))),
+                                      TextSpan(text: "\n\nImage Direction: \n"),
+                                      TextSpan(text: compassDirection.item1,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 19,
+                                              letterSpacing: 1.2,
+                                              color: Color(
+                                                  Global.selectedIconColor))),
+                                      TextSpan(text: " Compass Reading of " +
+                                          compassDirection.item2
+                                              .toStringAsFixed(
+                                              2).toString() +
+                                          "°"),
+                                      TextSpan(
+                                          text: "\n\nImage Coordinates: \n"),
+                                      TextSpan(text: imageDocRef
+                                          .data['imagePosition'].latitude
+                                          .toStringAsFixed(5) + "\n" +
+                                          imageDocRef.data['imagePosition']
+                                              .longitude.toStringAsFixed(
+                                              5),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 19,
+                                              letterSpacing: 1.2,
+                                              color: Colors.brown[900])),
+                                      TextSpan(text: "\n\n" +
+                                          placeMark.locality.toString() + "," +
+                                          placeMark.country.toString() + "," +
+                                          placeMark.postalCode.toString(),
+                                          style: TextStyle(color: Color(
+                                              Global.selectedIconColor))),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.expand_more),
+                            iconSize: 40,
+                            color: Color(Global.selectedIconColor),
+                            padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ],
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.expand_more),
-                          iconSize: 40,
-                          color: Color(Global.selectedIconColor),
-                          padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  );
+                },
                 );
               },
-              );
-            },
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueYellow)),
-      );
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueYellow)),
+        );
 
-      double p1Endlat = imageDocRef.data['imagePosition'].latitude +
-          cos(radians(imageDocRef.data['compassData'] + 90.0));
-      double p1Endlong = imageDocRef.data['imagePosition'].longitude +
-          sin(radians(imageDocRef.data['compassData'] + 90.0));
-      //  print("P1Start: " + imageDocRef.data['imagePosition'].latitude.toString() + "," +imageDocRef.data['imagePosition'].longitude.toString());
-      //print("P2END: " + p1Endlat.toString() + "," + p1Endlong.toString());
-      double polyLineLatDirection = sin(
-          radians(imageDocRef.data['compassData'] + 90.0)) / 20;
-      double polyLineLongDirection = -cos(
-          radians(imageDocRef.data['compassData'] + 90.0)) / 20;
-      //print("compass reading:" +imageDocRef.data['compassData'].toString());
-      //print("actual direction:" +(imageDocRef.data['compassData']+90).toString());
-      //print("compass lat:" + polyLineLatDirection.toString());
-      //print("compass long:" + polyLineLatDirection.toString());
-      polylineList.add(
-          Polyline(
-              polylineId: PolylineId(markerId.toString()),
-              visible: true,
-              color: Colors.blueAccent,
-              width: 2,
-              patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
-              points: [
-                LatLng(imageDocRef.data['imagePosition'].latitude,
-                    imageDocRef.data['imagePosition'].longitude),
-                LatLng(imageDocRef.data['imagePosition'].latitude +
-                    polyLineLatDirection,
-                    polyLineLongDirection +
-                        imageDocRef.data['imagePosition'].longitude)
-              ]
-          )
-      );
-
+        double p1Endlat = imageDocRef.data['imagePosition'].latitude +
+            cos(radians(imageDocRef.data['compassData'] + 90.0));
+        double p1Endlong = imageDocRef.data['imagePosition'].longitude +
+            sin(radians(imageDocRef.data['compassData'] + 90.0));
+        //  print("P1Start: " + imageDocRef.data['imagePosition'].latitude.toString() + "," +imageDocRef.data['imagePosition'].longitude.toString());
+        //print("P2END: " + p1Endlat.toString() + "," + p1Endlong.toString());
+        double polyLineLatDirection = sin(
+            radians(imageDocRef.data['compassData'] + 90.0)) / 20;
+        double polyLineLongDirection = -cos(
+            radians(imageDocRef.data['compassData'] + 90.0)) / 20;
+        //print("compass reading:" +imageDocRef.data['compassData'].toString());
+        //print("actual direction:" +(imageDocRef.data['compassData']+90).toString());
+        //print("compass lat:" + polyLineLatDirection.toString());
+        //print("compass long:" + polyLineLatDirection.toString());
+        polylineList.add(
+            Polyline(
+                polylineId: PolylineId(markerId.toString()),
+                visible: true,
+                color: Colors.blueAccent,
+                width: 2,
+                patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
+                points: [
+                  LatLng(imageDocRef.data['imagePosition'].latitude,
+                      imageDocRef.data['imagePosition'].longitude),
+                  LatLng(imageDocRef.data['imagePosition'].latitude +
+                      polyLineLatDirection,
+                      polyLineLongDirection +
+                          imageDocRef.data['imagePosition'].longitude)
+                ]
+            )
+        );
+      }
       markerId++;
     }
 
@@ -312,7 +348,7 @@ class _MapRenderState extends State<MapRender> {
               BitmapDescriptor.hueRed)),
       );
       markerId++;
-    }}
+    }
     return Future.value(Tuple2(markersList, polylineList));
   }
 
