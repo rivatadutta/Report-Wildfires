@@ -168,7 +168,7 @@ class _UploaderState extends State<Uploader> {
       "url": downloadUrl,
       "name": imageFileName,
       "timeTaken": widget.imageData.timeTaken,
-      "compassData": widget.imageData.compassData,
+      "compassReading": widget.imageData.compassData, //compass reading is from 0 to 360, 0 being north
       "imagePosition": widget.imageData.imagePosition
     });
   }

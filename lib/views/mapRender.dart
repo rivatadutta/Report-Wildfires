@@ -36,10 +36,6 @@ class MapRender extends StatefulWidget {
 class _MapRenderState extends State<MapRender> {
 
   String searchAddr;
-  String _streetNumber = '';
-  String _street= '';
-  String _city = '';
-  String _zipCode = '';
   GoogleMapController mapController;
   final addressSearchcontroller = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
@@ -82,6 +78,8 @@ class _MapRenderState extends State<MapRender> {
       List<Placemark> placemarks = await placemarkFromCoordinates(imageDocRef.data['imagePosition'].latitude,
           imageDocRef.data['imagePosition'].longitude);
       Placemark placeMark  =  placemarks[0];
+      Tuple2<String, double> compassDirection = _findImageFacingDirection(
+          imageDocRef.data['compassData'].toDouble());
 
 
 
@@ -97,15 +95,17 @@ class _MapRenderState extends State<MapRender> {
           ],
 
           infoWindow: InfoWindow(
-            title: "Reported Fire",
-            snippet: "Tap for Info",
+            title: "Fire Reported at " +
+                formatDate(dateTimeTaken, [HH, ':', nn]) + " on " +
+                formatDate(dateTimeTaken, [dd, '/', mm]),
+            snippet: "Click for Details",
             onTap: (){
               showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
                 return Container(
                   decoration: BoxDecoration(
-                     color:  Color.fromRGBO(255, 217, 179, .4),
-                   // gradient: LinearGradient(colors: [Color(Global.backgroundColor), Color.fromRGBO(255, 217, 179, .4)],begin: Alignment.topCenter,
-                     // end: Alignment.bottomCenter,),
+                    color:  Color.fromRGBO(255, 217, 179, .4),
+                    // gradient: LinearGradient(colors: [Color(Global.backgroundColor), Color.fromRGBO(255, 217, 179, .4)],begin: Alignment.topCenter,
+                    // end: Alignment.bottomCenter,),
                     //backgroundBlendMode: BlendMode.
                     border: Border(top: BorderSide(width: .7, color: Color(Global.selectedIconColor))),
                   ),
@@ -148,14 +148,23 @@ class _MapRenderState extends State<MapRender> {
                                     TextSpan(text: "\non "),
                                     TextSpan(text:formatDate(dateTimeTaken, [dd, '/', mm, '/', yyyy]),
                                         style: TextStyle(fontWeight: FontWeight.w400,fontSize: 20,letterSpacing: 1.2,color: Color(Global.selectedIconColor))),
-                            TextSpan(text: "\n\nCompass Reading: "),
-                                    TextSpan(text: imageDocRef.data['compassData'].round().toString() + "°", style: TextStyle(
-                                        fontWeight: FontWeight.w400, fontSize: 19,letterSpacing: 1.2,color: Colors.brown[900])),
-                                    TextSpan(text: "\n\nCoordinates: \n"),
-                                    TextSpan(text: imageDocRef.data['imagePosition'].latitude.toString() +"\n" + imageDocRef.data['imagePosition'].longitude.toString(),
+                                    TextSpan(text: "\n\nImage Direction: \n"),
+                                    TextSpan(text: compassDirection.item1,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 19,
+                                            letterSpacing: 1.2,
+                                            color:Color(Global.selectedIconColor))),
+                                    TextSpan(text: " Compass Reading of " +
+                                        compassDirection.item2.toStringAsFixed(
+                                            2).toString() +
+                                        "°"),
+                                    TextSpan(text: "\n\nImage Coordinates: \n"),
+                                    TextSpan(text: imageDocRef.data['imagePosition'].latitude.toStringAsFixed(5) +"\n" + imageDocRef.data['imagePosition'].longitude.toStringAsFixed(
+                                        5),
                                         style: TextStyle(fontWeight: FontWeight.w400,fontSize: 19,letterSpacing: 1.2,color: Colors.brown[900])),
                                     TextSpan(text: "\n\n"+ placeMark.locality.toString() +"," + placeMark.country.toString()+"," +
-                                        placeMark.postalCode.toString()),
+                                        placeMark.postalCode.toString(), style: TextStyle(color:Color(Global.selectedIconColor))),
                                   ],
                                 ),
                               ),
@@ -163,13 +172,13 @@ class _MapRenderState extends State<MapRender> {
                           ),
                         ],
                         ),
-                IconButton(
-                icon: const Icon(Icons.expand_more),
-                iconSize: 40,
-                color: Color(Global.selectedIconColor),
-                padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
-                onPressed: () => Navigator.pop(context),
-                ),
+                        IconButton(
+                          icon: const Icon(Icons.expand_more),
+                          iconSize: 40,
+                          color: Color(Global.selectedIconColor),
+                          padding: EdgeInsets.fromLTRB(0, 0, 2, 0),
+                          onPressed: () => Navigator.pop(context),
+                        ),
                       ],
                     ),
                   ),
@@ -182,6 +191,20 @@ class _MapRenderState extends State<MapRender> {
               BitmapDescriptor.hueYellow)),
       );
 
+      double p1Endlat = imageDocRef.data['imagePosition'].latitude +
+          cos(radians(imageDocRef.data['compassData'] + 90.0));
+      double p1Endlong = imageDocRef.data['imagePosition'].longitude +
+          sin(radians(imageDocRef.data['compassData'] + 90.0));
+      //  print("P1Start: " + imageDocRef.data['imagePosition'].latitude.toString() + "," +imageDocRef.data['imagePosition'].longitude.toString());
+      //print("P2END: " + p1Endlat.toString() + "," + p1Endlong.toString());
+      double polyLineLatDirection = sin(
+          radians(imageDocRef.data['compassData'] + 90.0)) / 20;
+      double polyLineLongDirection = -cos(
+          radians(imageDocRef.data['compassData'] + 90.0)) / 20;
+      //print("compass reading:" +imageDocRef.data['compassData'].toString());
+      //print("actual direction:" +(imageDocRef.data['compassData']+90).toString());
+      //print("compass lat:" + polyLineLatDirection.toString());
+      //print("compass long:" + polyLineLatDirection.toString());
       polylineList.add(
           Polyline(
               polylineId: PolylineId(markerId.toString()),
@@ -189,9 +212,14 @@ class _MapRenderState extends State<MapRender> {
               color: Colors.blueAccent,
               width: 2,
               patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
-              points: [LatLng(imageDocRef.data['imagePosition'].latitude,imageDocRef.data['imagePosition'].longitude),
-                LatLng(imageDocRef.data['imagePosition'].latitude + cos(imageDocRef.data['compassData']*(pi/180))/20,
-                    imageDocRef.data['imagePosition'].longitude + sin(imageDocRef.data['compassData']*(pi/180))/20)]
+              points: [
+                LatLng(imageDocRef.data['imagePosition'].latitude,
+                    imageDocRef.data['imagePosition'].longitude),
+                LatLng(imageDocRef.data['imagePosition'].latitude +
+                    polyLineLatDirection,
+                    polyLineLongDirection +
+                        imageDocRef.data['imagePosition'].longitude)
+              ]
           )
       );
 
@@ -200,11 +228,9 @@ class _MapRenderState extends State<MapRender> {
 
     double imageHeading1;
     double imageHeading2;
-
-    Tuple2<double,double> a;
-    Tuple2<double,double> b;
-    Tuple2<double,double> intersection;
-
+    Tuple2<double, double> a;
+    Tuple2<double, double> b;
+    Tuple2<double, double> intersection;
     //iterat
     //call intersection
     for (DocumentSnapshot image1 in imageDocumentsList) {
@@ -227,16 +253,18 @@ class _MapRenderState extends State<MapRender> {
               imageDocRef1.data['imagePosition'].longitude);
           b = Tuple2<double, double>(
               imageDocRef2.data['imagePosition'].latitude,
-              imageDocRef1.data['imagePosition'].longitude);
+              imageDocRef2.data['imagePosition'].longitude);
           intersection = findIntersection(a, b, imageHeading1, imageHeading2);
           print("A: " + a.toString() + "B: " + b.toString());
           print(intersection.toString());
-          intersectionList.add(
-              intersection); //list of all intersection`s between all images
+          if ((intersection.item1 != 0.0) && (intersection.item2 != 0.0)) {
+            intersectionList.add(
+                intersection); //list of all intersection`s between all images
+          }
         }
       }
     }
-    print("intersections: " + intersectionList.toString());
+    //print("intersections: " + intersectionList.toString());
     //
     // //Messing around with seeing intersections that are similar
     // for (Tuple2 fireMarkers1 in intersectionList) {
@@ -279,7 +307,6 @@ class _MapRenderState extends State<MapRender> {
       );
       markerId++;
     }
-
     return Future.value(Tuple2(markersList, polylineList));
   }
 
@@ -298,46 +325,46 @@ class _MapRenderState extends State<MapRender> {
   }
 
 
-  Tuple2<double,double> findIntersection(Tuple2<double,double> location1, Tuple2<double,double> location2, double heading1, double heading2) {
-    // We basically perform Gaussian elimination on a 2x3 matrix to solve for variables.
-    // Then plug variables into parameterization of eqs.
-    //
-    // Find where vectors are equal
-    // Lat1 + cos(head1)X = Lat2 + cos(head2)Y
-    // Long1 + sin(head1)X = Long2 + sin(head2)Y
-    // Manipulate and represent as matrix
-    // [sin(head1)X - sin(head2)Y | (Long2 - Long1)]
-    // [cos(head2)X - cos(head2)Y | (Lat2 - Lat1)]
-    var mtx = Matrix3(
-        sin(heading1*(pi/180)),
-        sin(heading2*(pi/180)),
-        0,
-        -1*cos(heading1*(pi/180)),
-        -1*cos(heading2*(pi/180)),
-        0,
-        //item1 = lat, item2 = long
-        location1.item2 - location1.item1,
-        location2.item2 - location2.item1,
-        0);
+  bool DoesRaysIntersects(Point p1, Point p2, Point n1, Point n2) {
+    double u = (p1.y * n2.x + n2.y * p2.x - p2.y * n2.x - n2.y * p1.x) /
+        (n1.x * n2.y - n1.y * n2.x);
+    double v = (p1.x + n1.x * u - p2.x) / n2.x;
 
-    // Subtract (ratio * Row0) from Row1 in order to cancel out cos(head1)X
-    var ratio = mtx.entry(1,0) / mtx.entry(0,0);
-    mtx.setEntry(1,0, 0);
-    mtx.setEntry(1,1, mtx.entry(1,1) - ratio*mtx.entry(0,1));
-    mtx.setEntry(1,2, mtx.entry(1,2) - ratio*mtx.entry(0,2));
-
-    // Divide to find value of Y
-    var y = mtx.entry(1,2) / mtx.entry(1,1);
-
-    // Substitute Y into Row0 and solve for X
-    var x = (mtx.entry(0,2) - y*mtx.entry(0,1)) / mtx.entry(0,0);
-    print("x:" + x.toString() + "y:" + y.toString());
-
-    // Substitute x into parameter equation to find intersection point
-    return Tuple2<double,double>(
-        location1.item1 + cos(heading1*(pi/180)) * x.abs(),
-        location1.item2 + sin(heading1*(pi/180)) * x.abs());
+    return u > 0 && v > 0;
   }
+
+  Point GetPointOfIntersection(Point p1, Point p2, Point n1, Point n2) {
+    Point p1End = p1 + n1; // another point in line p1->n1
+    Point p2End = p2 + n2; // another point in line p2->n2
+
+    double m1 = (p1End.y - p1.y) / (p1End.x - p1.x); // slope of line p1->n1
+    double m2 = (p2End.y - p2.y) / (p2End.x - p2.x); // slope of line p2->n2
+
+    double b1 = p1.y - m1 * p1.x; // y-intercept of line p1->n1
+    double b2 = p2.y - m2 * p2.x; // y-intercept of line p2->n2
+
+    double px = (b2 - b1) / (m1 - m2); // collision x
+    double py = m1 * px + b1; // collision y
+    return new Point(px, py); // return statement
+  }
+
+  Tuple2<double, double> findIntersection(Tuple2<double, double> location1,
+      Tuple2<double, double> location2, double heading1, double heading2) {
+    Point p1 = Point(location1.item2, location1.item1);
+    Point d1 = Point((-cos(radians(heading1 + 90.0)) / 20),
+        sin(radians(heading1 + 90.0)) / 20);
+    Point p2 = Point(location2.item2, location2.item1);
+    Point d2 = Point((-cos(radians(heading2 + 90.0)) / 20),
+        sin(radians(heading2 + 90.0)) / 20);
+
+    if (DoesRaysIntersects(p1, p2, d1, d2) == true) {
+      Point intersectionPoint = GetPointOfIntersection(p1, p2, d1, d2);
+      return Tuple2<double, double>(intersectionPoint.y, intersectionPoint.x);
+    }
+
+    return Tuple2<double, double>(0.0, 0.0);
+  }
+
 
   Tuple2<double,double> averageCoords(List<Tuple2<double,double>> coords){
     double item1Avg = 0;
@@ -353,6 +380,33 @@ class _MapRenderState extends State<MapRender> {
     return Tuple2<double,double>(item1Avg,item2Avg);
   }
 
+  Tuple2<String, double> _findImageFacingDirection(double compassData) {
+    if ((compassData >= 337.5 && compassData <= 360.0) ||
+        (compassData >= 0.0 && compassData < 22.5)) {
+      return Tuple2<String, double>("North", compassData);
+    }
+    else if ((compassData >= 22.5 && compassData <= 67.5)) {
+      return Tuple2<String, double>("NorthEast", compassData);
+    }
+    else if ((compassData >= 67.5 && compassData <= 112.5)) {
+      return Tuple2<String, double>("East", compassData);
+    }
+    else if (compassData >= 112.5 && compassData <= 157.5) {
+      return Tuple2<String, double>("SouthEast", compassData);
+    }
+    else if (compassData >= 157.5 && compassData <= 202.5) {
+      return Tuple2<String, double>("South", compassData);
+    }
+    else if (compassData >= 202.5 && compassData < 247.5) {
+      return Tuple2<String, double>("SouthWest", compassData);
+    }
+    else if (compassData >= 247.5 && compassData <= 292.5) {
+      return Tuple2<String, double>("West", compassData);
+    }
+    else if (compassData >= 292.5 && compassData <= 337.5) {
+      return Tuple2<String, double>("NorthWest", compassData);
+    }
+  }
 
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
@@ -587,173 +641,3 @@ class _MapRenderState extends State<MapRender> {
   }
 
 }
-
-/*
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:fire_project/globalData/globalVariables.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geocoder/geocoder.dart';
-import 'camera.dart';
-// //Below is a function that gets the users current location, or last known location.
-// //The function will return a Position variable
-// Future<Position> currentLocation() async {
-// //First, I want to check if location services are available
-// //Lines below are to check if location services are enabled
-//   GeolocationStatus geolocationStatus =
-//       await Geolocator().checkGeolocationPermissionStatus();
-// //If we get access to the location services, we should get the current location, and return it
-//   if (geolocationStatus == GeolocationStatus.granted) {
-// //Get the current location and return it
-//     Position position = await Geolocator()
-//         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-//     return position;
-//   }
-// //Else, if we get any other value, we will return the last known position
-//   else {
-//     Position position = await Geolocator()
-//         .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
-//     return position;
-//   }
-// }
-class MapRender extends StatefulWidget {
-  @override
-  _MapRenderState createState() => _MapRenderState();
-}
-class _MapRenderState extends State<MapRender> {
-  String searchAddr;
-  GoogleMapController mapController;
-  Completer<GoogleMapController> _controller = Completer();
-  // Creating a variable currPosition that will be used to store the users current position
-  Position currPosition;
-  LatLng currLocation;
-  // // Initializing center of map
-  // static LatLng _center;
-  // //Function used to get users original position
-  // Future<void> _getUserLocation() async {
-  //   currPosition = await currentLocation();
-  //   _center = LatLng(currPosition.latitude, currPosition.longitude);
-  //   await FirebaseFunctions.pushUserLocation(
-  //       currPosition.latitude, currPosition.longitude);
-  // }
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
-  int _currentIndex = 1;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Map"),
-        elevation: 0.0,
-        backgroundColor: Color(Global.backgroundColor),
-      ),
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
-            mapType: MapType.hybrid,
-            onMapCreated: onMapCreated,
-            // initialCameraPosition: CameraPosition(
-            //   target: _center,
-            //   zoom: 14.0,
-            // ),
-            // options: GoogleMapOptions(
-            initialCameraPosition: _kGooglePlex,
-          ),
-          //initialCameraPosition: _kGooglePlex,
-          //onMapCreated: (GoogleMapController controller) {
-          //  _controller.complete(controller);
-          // },
-          //  ),
-          Positioned(
-            top: 30.0,
-            right: 15.0,
-            left: 15.0,
-            child: Container(
-              height: 50.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Colors.white),
-              child: TextField(
-                decoration: InputDecoration(
-                    hintText: 'Enter Address',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                    suffixIcon: IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: searchandNavigate,
-                        iconSize: 30.0)),
-                onChanged: (val) {
-                  setState(() {
-                    searchAddr = val;
-                  });
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 130.0, 16.0, 16.0),
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Column(
-                children: <Widget>[
-//Adding another floating button to mark locations
-                  FloatingActionButton(
-                    heroTag: 'setLocationTag',
-                    // onPressed: _onAddMarkerButtonPressed,
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    backgroundColor: Colors.redAccent,
-                    child: const Icon(
-                      Icons.add_location,
-                      size: 36.0,
-                    ),
-                  ),
-                  // confirmFinalPosition(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => CameraApp(),
-              transitionsBuilder: (context, animation1, animation2, child) =>
-                  FadeTransition(opacity: animation1, child: child),
-              transitionDuration: Duration(milliseconds: 300),
-            ),
-          );
-        },
-        backgroundColor: Colors.deepOrange,
-        label: Text('Upload Image'),
-        icon: Icon(Icons.add_a_photo_sharp),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-  Future<void> searchandNavigate() async {
-    print(Global.userAddress);
-    List<Location> location = await locationFromAddress(searchAddr);
-    mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(location[0].latitude, location[1].longitude),
-        zoom: 10.0)));
-  }
-  void onMapCreated(controller) {
-    setState(() {
-      mapController = controller;
-    });
-  }
-}
-*/
