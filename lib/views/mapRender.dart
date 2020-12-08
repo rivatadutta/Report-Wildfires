@@ -256,12 +256,15 @@ class _MapRenderState extends State<MapRender> {
           b = Tuple2<double, double>(
               imageDocRef2.data['imagePosition'].latitude,
               imageDocRef2.data['imagePosition'].longitude);
+          //if distance bewteen points is not greater than 100 miles
+          if (!(Geolocator.distanceBetween(a.item1, a.item2, b.item1, b.item2) > 160934)){
           intersection = findIntersection(a, b, imageHeading1, imageHeading2);
           print("A: " + a.toString() + "B: " + b.toString());
           print(intersection.toString());
           if ((intersection.item1 != 0.0) && (intersection.item2 != 0.0)) {
-            intersectionList.add(
-                intersection); //list of all intersection`s between all images
+          intersectionList.add(
+          intersection); //list of all intersection`s between all images
+          }
           }
           }
         }
@@ -320,11 +323,12 @@ class _MapRenderState extends State<MapRender> {
     super.initState();
     _getUserLocation();
     _createMarkersForUserImagesandFires().then((Tuple2<List<Marker>,List<Polyline>> markersAndLines){
-      setState((){
-        markers = markersAndLines.item1;
-        polylines = markersAndLines.item2;
-      });
-    });
+      if(mounted) {
+        setState(() {
+          markers = markersAndLines.item1;
+          polylines = markersAndLines.item2;
+        });
+      }});
   }
 
 
