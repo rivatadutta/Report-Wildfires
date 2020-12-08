@@ -53,7 +53,6 @@ class _MapRenderState extends State<MapRender> {
   List<Marker> markers = [];
   List<Polyline> polylines = [];
   List<Tuple2<double, double>> intersectionList = [];
-  List<Tuple2<double, double>> uniqueIntersectionMarkers = [];
 
   Future<Tuple2<List<Marker>,List<Polyline>>> _createMarkersForUserImagesandFires() async {
     List<Marker> markersList = [];
@@ -94,9 +93,7 @@ class _MapRenderState extends State<MapRender> {
           [_changeMap(LatLng(
               imageDocRef.data['imagePosition'].latitude,
               imageDocRef.data['imagePosition'].longitude)),
-            _showMarkerData(imageUrl, imageDocRef.data['timeTaken'], LatLng(
-                imageDocRef.data['imagePosition'].latitude,
-                imageDocRef.data['imagePosition'].longitude)),
+            _showMarkerImage(imageUrl),
           ],
 
           infoWindow: InfoWindow(
@@ -204,39 +201,42 @@ class _MapRenderState extends State<MapRender> {
     double imageHeading1;
     double imageHeading2;
 
-    Tuple2 a;
-    Tuple2 b;
-    Tuple2 fireMarker;
+    Tuple2<double,double> a;
+    Tuple2<double,double> b;
+    Tuple2<double,double> intersection;
 
     //iterat
     //call intersection
-    // for (DocumentSnapshot image1 in imageDocumentsList) {
-    //   DocumentReference imageReference1 = Firestore.instance.collection(
-    //       "images").document(image1.documentID);
-    //   DocumentSnapshot imageDocRef1 = await imageReference1.get();
-    //   for (DocumentSnapshot image2 in imageDocumentsList) {
-    //     DocumentReference imageReference2 = Firestore.instance.collection(
-    //         "images").document(image2.documentID);
-    //     DocumentSnapshot imageDocRef2 = await imageReference2.get();
-    //     //Don't look at the same points.
-    //     if (image1 == image2) {
-    //       continue;
-    //     }
-    //     else {
-    //       imageHeading1 = imageDocRef1.data['compassData'];
-    //       imageHeading2 = imageDocRef2.data['compassData'];
-    //       a = Tuple2<double, double>(
-    //           imageDocRef1.data['imagePosition'].latitude,
-    //           imageDocRef1.data['imagePosition'].longitude);
-    //       b = Tuple2<double, double>(
-    //           imageDocRef2.data['imagePosition'].latitude,
-    //           imageDocRef1.data['imagePosition'].longitude);
-    //       fireMarker = findIntersection(a, b, imageHeading1, imageHeading2);
-    //       intersectionList.add(
-    //           fireMarker); //list of all intersection`s between all images
-    //     }
-    //   }
-    // }
+    for (DocumentSnapshot image1 in imageDocumentsList) {
+      DocumentReference imageReference1 = Firestore.instance.collection(
+          "images").document(image1.documentID);
+      DocumentSnapshot imageDocRef1 = await imageReference1.get();
+      for (DocumentSnapshot image2 in imageDocumentsList) {
+        DocumentReference imageReference2 = Firestore.instance.collection(
+            "images").document(image2.documentID);
+        DocumentSnapshot imageDocRef2 = await imageReference2.get();
+        //Don't look at the same points.
+        if (image1 == image2) {
+          continue;
+        }
+        else {
+          imageHeading1 = imageDocRef1.data['compassData'].toDouble();
+          imageHeading2 = imageDocRef2.data['compassData'].toDouble();
+          a = Tuple2<double, double>(
+              imageDocRef1.data['imagePosition'].latitude,
+              imageDocRef1.data['imagePosition'].longitude);
+          b = Tuple2<double, double>(
+              imageDocRef2.data['imagePosition'].latitude,
+              imageDocRef1.data['imagePosition'].longitude);
+          intersection = findIntersection(a, b, imageHeading1, imageHeading2);
+          print("A: " + a.toString() + "B: " + b.toString());
+          print(intersection.toString());
+          intersectionList.add(
+              intersection); //list of all intersection`s between all images
+        }
+      }
+    }
+    print("intersections: " + intersectionList.toString());
     //
     // //Messing around with seeing intersections that are similar
     // for (Tuple2 fireMarkers1 in intersectionList) {
@@ -264,21 +264,21 @@ class _MapRenderState extends State<MapRender> {
     //   }
     // }
     //
-    // for (Tuple2<double, double> fireMarkers in uniqueIntersectionMarkers) {
-    //   markersList.add(Marker(
-    //       markerId: MarkerId(markerId.toString()),
-    //       position: LatLng(fireMarkers.item1, fireMarkers.item2),
-    //       onTap: () =>
-    //           _changeMap(LatLng(
-    //               fireMarkers.item1, fireMarkers.item2)),
-    //       infoWindow: InfoWindow(
-    //         title: "fire",
-    //         snippet: null,),
-    //       icon: BitmapDescriptor.defaultMarkerWithHue(
-    //           BitmapDescriptor.hueRed)),
-    //   );
-    //   markerId++;
-    // }
+    for (Tuple2<double, double> fireMarkers in intersectionList) {
+      markersList.add(Marker(
+          markerId: MarkerId(markerId.toString()),
+          position: LatLng(fireMarkers.item1, fireMarkers.item2),
+          onTap: () =>
+              _changeMap(LatLng(
+                  fireMarkers.item1, fireMarkers.item2)),
+          infoWindow: InfoWindow(
+            title: "fire",
+            snippet: null,),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueRed)),
+      );
+      markerId++;
+    }
 
     return Future.value(Tuple2(markersList, polylineList));
   }
@@ -303,20 +303,21 @@ class _MapRenderState extends State<MapRender> {
     // Then plug variables into parameterization of eqs.
     //
     // Find where vectors are equal
-    // Long1 + sin(head1)X = Long2 + sin(head2)Y
     // Lat1 + cos(head1)X = Lat2 + cos(head2)Y
+    // Long1 + sin(head1)X = Long2 + sin(head2)Y
     // Manipulate and represent as matrix
     // [sin(head1)X - sin(head2)Y | (Long2 - Long1)]
-    // [cos(head1)X - cos(head2)Y | (Lat2 - Lat1)]
+    // [cos(head2)X - cos(head2)Y | (Lat2 - Lat1)]
     var mtx = Matrix3(
         sin(heading1*(pi/180)),
-        cos(heading1*(pi/180)),
+        sin(heading2*(pi/180)),
         0,
-        -1*sin(heading2*(pi/180)),
+        -1*cos(heading1*(pi/180)),
         -1*cos(heading2*(pi/180)),
         0,
-        location2.item1 - location1.item1,
-        location2.item2 - location1.item2,
+        //item1 = lat, item2 = long
+        location1.item2 - location1.item1,
+        location2.item2 - location2.item1,
         0);
 
     // Subtract (ratio * Row0) from Row1 in order to cancel out cos(head1)X
@@ -330,12 +331,12 @@ class _MapRenderState extends State<MapRender> {
 
     // Substitute Y into Row0 and solve for X
     var x = (mtx.entry(0,2) - y*mtx.entry(0,1)) / mtx.entry(0,0);
-    // print("x:" + x.toString() + "y:" + y.toString());
+    print("x:" + x.toString() + "y:" + y.toString());
 
     // Substitute x into parameter equation to find intersection point
     return Tuple2<double,double>(
-        location1.item1 + sin(heading1*(pi/180)) * x,
-        location1.item2 + cos(heading1*(pi/180)) * x);
+        location1.item1 + cos(heading1*(pi/180)) * x.abs(),
+        location1.item2 + sin(heading1*(pi/180)) * x.abs());
   }
 
   Tuple2<double,double> averageCoords(List<Tuple2<double,double>> coords){
@@ -404,8 +405,8 @@ class _MapRenderState extends State<MapRender> {
   _onAddMarkerButtonPressed() {
     // _findIntersectionMarkers();
     // Example of findIntersection and average
-    const a = const Tuple2<double,double>(-122.050316, 36.993127);
-    const b = const Tuple2<double,double>(-122.053105, 36.970124);
+    const a = const Tuple2<double,double>(36.993127, -122.050316);
+    const b = const Tuple2<double,double>(36.970124 , -122.053105);
     Tuple2<double,double> inter = findIntersection(a, b, 250, 290);
     List<Tuple2<double,double>> intersectionList = [a, b, inter];
     Tuple2<double,double> avg = averageCoords(intersectionList);
@@ -436,8 +437,8 @@ class _MapRenderState extends State<MapRender> {
     );
   }
 
-  Widget _showMarkerData(String imageUrl, DateTime timeTaken, LatLng position) {
-    String print = position.toString();
+  Widget _showMarkerImage(String imageUrl) {
+    // String print = position.toString();
     return Row(
       children:[
         Positioned(
