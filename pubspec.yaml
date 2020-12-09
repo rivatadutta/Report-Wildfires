@@ -46,6 +46,7 @@ dependencies:
   flutter_phoenix: ^0.1.0
     # Check that you have this dependency (added in the previous step)
   firebase_core: ^0.4.0+9
+  flutter_spinkit: "^4.1.2"
 
     # Add the dependency for the FlutterFire plugin for Google Analytics
   firebase_analytics: ^5.0.2
