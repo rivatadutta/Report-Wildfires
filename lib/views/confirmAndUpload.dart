@@ -1,26 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:fire_project/views/viewMapOrReport.dart';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:rxdart/subjects.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fire_project/views/camera.dart';
-import 'dart:io';
-import 'package:geolocator/geolocator.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fire_project/globalData/globalVariables.dart';
-import 'package:fire_project/landingPage.dart';
-import 'package:camera/camera.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_compass/flutter_compass.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fire_project/views/camera.dart';
+import 'package:fire_project/views/viewMapOrReport.dart';
 import 'package:fire_project/globalData/globalVariables.dart';
 
 import 'mapRender.dart';
@@ -168,7 +155,7 @@ class _UploaderState extends State<Uploader> {
       "url": downloadUrl,
       "name": imageFileName,
       "timeTaken": widget.imageData.timeTaken,
-      "compassReading": widget.imageData.compassData, //compass reading is from 0 to 360, 0 being north
+      "compassData": widget.imageData.compassData, //compass reading is from 0 to 360, 0 being north
       "imagePosition": widget.imageData.imagePosition
     });
   }

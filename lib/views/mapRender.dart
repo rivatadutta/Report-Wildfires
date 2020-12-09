@@ -1,22 +1,20 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fire_project/globalData/place_service.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors;
 import 'package:tuple/tuple.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:fire_project/globalData/globalVariables.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:flutter/cupertino.dart';
-import 'camera.dart';
-import 'package:fire_project/globalData/address_search.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:fire_project/globalData/globalVariables.dart';
+import 'package:fire_project/globalData/address_search.dart';
+import 'package:fire_project/globalData/place_service.dart';
 
 class PinInformation {
   Image image;
@@ -42,15 +40,14 @@ class _MapRenderState extends State<MapRender> {
 
   static LatLng _initialPosition;
   BitmapDescriptor pinLocationIcon; //create custom pin not working yet
-  final Set<Marker> _markers = {};
-  static LatLng _lastMapPosition = _initialPosition;
+  // static LatLng _lastMapPosition = _initialPosition;
 
 
   List<Marker> markers = [];
   List<Polyline> polylines = [];
   List<Tuple2<double, double>> intersectionList = [];
 
-  Future<Tuple2<List<Marker>,List<Polyline>>> _createMarkersForUserImagesandFires() async {
+  Future<Tuple2<List<Marker>,List<Polyline>>> _createMarkersForUserImagesAndFires() async {
     List<Marker> markersList = [];
     List<Polyline> polylineList = [];
     List<DocumentSnapshot> imageDocumentsList = [];
@@ -62,7 +59,7 @@ class _MapRenderState extends State<MapRender> {
         .getDocuments();
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       var a = querySnapshot.documents[i];
-      print(a);
+      // print(a);
       imageDocumentsList.add(a);
     }
     //iterate through all images uploaded to firebase
@@ -81,6 +78,7 @@ class _MapRenderState extends State<MapRender> {
       if ( imageDocRef.data['compassData'] !=null) {
         Tuple2<String, double> compassDirection = _findImageFacingDirection(
             imageDocRef.data['compassData'].toDouble());
+        // print("compassData: " + compassDirection.toString());
 
 
         markersList.add(Marker(
@@ -228,12 +226,6 @@ class _MapRenderState extends State<MapRender> {
                 BitmapDescriptor.hueYellow)),
         );
 
-        double p1Endlat = imageDocRef.data['imagePosition'].latitude +
-            cos(radians(imageDocRef.data['compassData'] + 90.0));
-        double p1Endlong = imageDocRef.data['imagePosition'].longitude +
-            sin(radians(imageDocRef.data['compassData'] + 90.0));
-        //  print("P1Start: " + imageDocRef.data['imagePosition'].latitude.toString() + "," +imageDocRef.data['imagePosition'].longitude.toString());
-        //print("P2END: " + p1Endlat.toString() + "," + p1Endlong.toString());
         double polyLineLatDirection = sin(
             radians(imageDocRef.data['compassData'] + 90.0)) / 20;
         double polyLineLongDirection = -cos(
@@ -268,8 +260,8 @@ class _MapRenderState extends State<MapRender> {
     Tuple2<double, double> a;
     Tuple2<double, double> b;
     Tuple2<double, double> intersection;
-    //iterat
-    //call intersection
+
+    // Find intersection points
     for (DocumentSnapshot image1 in imageDocumentsList) {
       DocumentReference imageReference1 = Firestore.instance.collection(
           "images").document(image1.documentID);
@@ -282,73 +274,42 @@ class _MapRenderState extends State<MapRender> {
         if (image1 == image2) {
           continue;
         }
-        else {
-          if (imageDocRef1.data['compassData'] !=null && imageDocRef2.data['compassData'] !=null){
-          imageHeading1 = imageDocRef1.data['compassData'].toDouble();
-          imageHeading2 = imageDocRef2.data['compassData'].toDouble();
-          a = Tuple2<double, double>(
-              imageDocRef1.data['imagePosition'].latitude,
-              imageDocRef1.data['imagePosition'].longitude);
-          b = Tuple2<double, double>(
-              imageDocRef2.data['imagePosition'].latitude,
-              imageDocRef2.data['imagePosition'].longitude);
-          //if distance bewteen points is not greater than 100 miles
-          if (!(Geolocator.distanceBetween(a.item1, a.item2, b.item1, b.item2) > 160934)){
+        if (imageDocRef1.data['compassData'] !=null && imageDocRef2.data['compassData'] !=null){
+        imageHeading1 = imageDocRef1.data['compassData'].toDouble();
+        imageHeading2 = imageDocRef2.data['compassData'].toDouble();
+        a = Tuple2<double, double>(
+            imageDocRef1.data['imagePosition'].latitude,
+            imageDocRef1.data['imagePosition'].longitude);
+        b = Tuple2<double, double>(
+            imageDocRef2.data['imagePosition'].latitude,
+            imageDocRef2.data['imagePosition'].longitude);
+        //if distance bewteen points is not greater than 100 miles
+        if (!(Geolocator.distanceBetween(a.item1, a.item2, b.item1, b.item2) > 160934)){
           intersection = findIntersection(a, b, imageHeading1, imageHeading2);
-          print("A: " + a.toString() + "B: " + b.toString());
-          print(intersection.toString());
+          // print("A: " + a.toString() + "B: " + b.toString() + "intersection: " + intersection.toString());
           if ((intersection.item1 != 0.0) && (intersection.item2 != 0.0)) {
-          intersectionList.add(
-          intersection); //list of all intersection`s between all images
-          }
-          }
+            intersectionList.add(
+            intersection); //list of all intersection`s between all images
+            }
           }
         }
       }
     }
-    //print("intersections: " + intersectionList.toString());
-    //
-    // //Messing around with seeing intersections that are similar
-    // for (Tuple2 fireMarkers1 in intersectionList) {
-    //   for (Tuple2 fireMarkers2 in intersectionList) {
-    //     if (fireMarkers1 == fireMarkers2) {
-    //       continue;
-    //     }
-    //     //calculate distance between two intersection points
-    //     var _distanceInMeters = Geolocator.distanceBetween(
-    //       fireMarkers1.item1,
-    //       fireMarkers1.item2,
-    //       fireMarkers2.item1,
-    //       fireMarkers2.item2,
-    //     );
-    //     //if intersection point distances are > than 3 miles, then it is unique intersection point
-    //     if (_distanceInMeters > 200) {
-    //       if (!uniqueIntersectionMarkers.contains(fireMarkers1)) {
-    //         uniqueIntersectionMarkers.add(fireMarkers1);
-    //       }
-    //       if (!uniqueIntersectionMarkers.contains(fireMarkers2)) {
-    //         uniqueIntersectionMarkers.add(fireMarkers2);
-    //       }
-    //     }
-    //     // else {}
-    //   }
-    // }
-    //
-    for (Tuple2<double, double> fireMarkers in intersectionList) {
-      markersList.add(Marker(
-          markerId: MarkerId(markerId.toString()),
-          position: LatLng(fireMarkers.item1, fireMarkers.item2),
-          onTap: () =>
-              _changeMap(LatLng(
-                  fireMarkers.item1, fireMarkers.item2)),
-          infoWindow: InfoWindow(
-            title: "Fire",
-            snippet: null,),
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed)),
-      );
-      markerId++;
-    }
+
+    // Find average of intersection and add marker to represent fire
+    Tuple2<double,double> fireCoords = averageCoords(intersectionList);
+    markersList.add(Marker(
+        markerId: MarkerId(markerId.toString()),
+        position: LatLng(fireCoords.item1, fireCoords.item2),
+        onTap: () =>
+            _changeMap(LatLng(
+                fireCoords.item1, fireCoords.item2)),
+        infoWindow: InfoWindow(
+          title: "Fire",
+          snippet: null,),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueRed)),
+    );
     return Future.value(Tuple2(markersList, polylineList));
   }
 
@@ -358,7 +319,7 @@ class _MapRenderState extends State<MapRender> {
   void initState() {
     super.initState();
     _getUserLocation();
-    _createMarkersForUserImagesandFires().then((Tuple2<List<Marker>,List<Polyline>> markersAndLines){
+    _createMarkersForUserImagesAndFires().then((Tuple2<List<Marker>,List<Polyline>> markersAndLines){
       if(mounted) {
         setState(() {
           markers = markersAndLines.item1;
@@ -368,7 +329,7 @@ class _MapRenderState extends State<MapRender> {
   }
 
 
-  bool DoesRaysIntersects(Point p1, Point p2, Point n1, Point n2) {
+  bool raysIntersect(Point p1, Point p2, Point n1, Point n2) {
     double u = (p1.y * n2.x + n2.y * p2.x - p2.y * n2.x - n2.y * p1.x) /
         (n1.x * n2.y - n1.y * n2.x);
     double v = (p1.x + n1.x * u - p2.x) / n2.x;
@@ -376,7 +337,7 @@ class _MapRenderState extends State<MapRender> {
     return u > 0 && v > 0;
   }
 
-  Point GetPointOfIntersection(Point p1, Point p2, Point n1, Point n2) {
+  Point getPointOfIntersection(Point p1, Point p2, Point n1, Point n2) {
     Point p1End = p1 + n1; // another point in line p1->n1
     Point p2End = p2 + n2; // another point in line p2->n2
 
@@ -400,8 +361,8 @@ class _MapRenderState extends State<MapRender> {
     Point d2 = Point((-cos(radians(heading2 + 90.0)) / 20),
         sin(radians(heading2 + 90.0)) / 20);
 
-    if (DoesRaysIntersects(p1, p2, d1, d2) == true) {
-      Point intersectionPoint = GetPointOfIntersection(p1, p2, d1, d2);
+    if (raysIntersect(p1, p2, d1, d2) == true) {
+      Point intersectionPoint = getPointOfIntersection(p1, p2, d1, d2);
       return Tuple2<double, double>(intersectionPoint.y, intersectionPoint.x);
     }
 
@@ -449,6 +410,9 @@ class _MapRenderState extends State<MapRender> {
     else if (compassData >= 292.5 && compassData <= 337.5) {
       return Tuple2<String, double>("NorthWest", compassData);
     }
+    else {
+      return Tuple2<String, double>("Error", compassData);
+    }
   }
 
   void setCustomMapPin() async {
@@ -459,7 +423,7 @@ class _MapRenderState extends State<MapRender> {
   void _getUserLocation() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    print(position);
+    // print("position: " + position.toString());
     List<Placemark> placemark =
     await placemarkFromCoordinates(position.latitude, position.longitude);
     setState(() {
@@ -494,34 +458,9 @@ class _MapRenderState extends State<MapRender> {
     });
   }
 
-  _onCameraMove(CameraPosition position) {
-    _lastMapPosition = position.target;
-  }
-
-
-  _onAddMarkerButtonPressed() {
-    // _findIntersectionMarkers();
-    // Example of findIntersection and average
-    const a = const Tuple2<double,double>(36.993127, -122.050316);
-    const b = const Tuple2<double,double>(36.970124 , -122.053105);
-    Tuple2<double,double> inter = findIntersection(a, b, 250, 290);
-    List<Tuple2<double,double>> intersectionList = [a, b, inter];
-    Tuple2<double,double> avg = averageCoords(intersectionList);
-    print("inter:" + inter.toString());
-    print("Avg of a, b, inter:" + avg.toString());
-
-    setState(() {
-      _markers.add(Marker(
-          markerId: MarkerId(_lastMapPosition.toString()),
-          position: _lastMapPosition,
-          infoWindow: InfoWindow(
-              title: "fire location",
-              snippet: "time, date reported",
-              onTap: () {}),
-          onTap: () {},
-          icon: BitmapDescriptor.defaultMarker));
-    });
-  }
+  // _onCameraMove(CameraPosition position) {
+  //   _lastMapPosition = position.target;
+  // }
 
   Widget mapButton(Function function, Icon icon, Color color) {
     return RawMaterialButton(
@@ -594,7 +533,7 @@ class _MapRenderState extends State<MapRender> {
     zoom: 14.0,
     ),
     zoomGesturesEnabled: true,
-    onCameraMove: _onCameraMove,
+    // onCameraMove: _onCameraMove,
     myLocationEnabled: true,
     compassEnabled: true,
     myLocationButtonEnabled: false,
