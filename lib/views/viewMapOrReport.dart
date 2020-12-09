@@ -71,18 +71,7 @@ class _ViewMapOrReportState extends State<ViewMapOrReport> {
           backgroundColor: Color(Global.backgroundColor),
           elevation: 0.0,
         ),
-        body:  displayName== null
-            ? SpinKitFadingCircle(
-          size:500,
-        color: Colors.white,
-          itemBuilder: (BuildContext context, int index) {
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: index.isEven ? Colors.white : Color(Global.backgroundColor),
-          ),
-        );
-      },
-      ):
+        body:
       SafeArea(
         child: SingleChildScrollView(
           child: Column(
