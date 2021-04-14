@@ -1,7 +1,7 @@
-# Fire-Reporting
+# Report-Wildfires
 
 ## Built with
-Flutter (Dart Language)
+Flutter (Dart Language) & Firebase
 
 ## Running Instructions
 
